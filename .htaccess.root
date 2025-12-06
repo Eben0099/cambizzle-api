@@ -1,0 +1,46 @@
+# .htaccess principal pour la racine (www/)
+# Gère le routage entre Frontend React et API CodeIgniter
+
+RewriteEngine On
+
+# Redirection des requêtes API vers le sous-dossier /api/
+RewriteCond %{REQUEST_URI} ^/api/(.*)
+RewriteRule ^api/(.*)$ api/$1 [L]
+
+# Gestion des assets statiques React (CSS, JS, images)
+RewriteCond %{REQUEST_FILENAME} -f
+RewriteRule ^ - [L]
+
+# Redirection de toutes les autres requêtes vers index.html (React Router)
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteCond %{REQUEST_URI} !^/api/
+RewriteRule . /index.html [L]
+
+# Protection des fichiers sensibles
+<Files ".env*">
+    Order allow,deny
+    Deny from all
+</Files>
+
+<Files "composer.*">
+    Order allow,deny
+    Deny from all
+</Files>
+
+# Headers de sécurité
+<IfModule mod_headers.c>
+    Header always set X-Content-Type-Options nosniff
+    Header always set X-Frame-Options DENY
+    Header always set X-XSS-Protection "1; mode=block"
+</IfModule>
+
+# Configuration pour les uploads accessibles (sécurisés)
+<Directory "uploads">
+    Options -Indexes -ExecCGI
+    RemoveHandler .php .phtml .php3 .php4 .php5 .php6 .pl .py .jsp .asp .sh .cgi
+    <FilesMatch "\.(php|phtml|php3|php4|php5|php6|pl|py|jsp|asp|sh|cgi)$">
+        Order allow,deny
+        Deny from all
+    </FilesMatch>
+</Directory>

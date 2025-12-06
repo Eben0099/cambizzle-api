@@ -1,0 +1,26 @@
+# .htaccess pour CodeIgniter 4 - Racine du projet
+# Empêche l'accès direct aux fichiers sensibles
+
+# Blocage des fichiers de configuration
+<Files ".env*">
+    Order allow,deny
+    Deny from all
+</Files>
+
+<Files "composer.*">
+    Order allow,deny
+    Deny from all
+</Files>
+
+# Redirection vers le dossier public
+RewriteEngine On
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^(.*)$ public/$1 [L]
+
+# Protection contre l'inclusion de fichiers
+php_flag allow_url_include Off
+
+# Désactiver l'affichage des erreurs en production
+php_flag display_errors Off
+php_flag log_errors On

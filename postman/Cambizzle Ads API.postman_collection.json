@@ -1,0 +1,208 @@
+{
+  "info": {
+    "name": "Cambizzle Ads API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": "Collection pour tester l'API des annonces (Ads)."
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:8080/api" },
+    { "key": "authToken", "value": "" },
+    { "key": "slug", "value": "example-ad-slug" },
+    { "key": "adId", "value": "1" },
+    { "key": "userId", "value": "1" },
+    { "key": "categoryId", "value": "1" },
+    { "key": "subcategoryId", "value": "1" },
+    { "key": "subcategorySlug", "value": "example-subcat" },
+    { "key": "adminToken", "value": "" }
+  ],
+  "item": [
+    {
+      "name": "Auth / Login",
+      "request": {
+        "method": "POST",
+        "header": [ { "key": "Content-Type", "value": "application/json" } ],
+        "url": { "raw": "{{baseUrl}}/auth/login", "host": ["{{baseUrl}}"], "path": ["auth","login"] },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"email\": \"user@example.com\",\n  \"password\": \"password\"\n}"
+        }
+      }
+    },
+    {
+      "name": "Users / Verify Identity (form-data)",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{authToken}}" }
+        ],
+        "body": {
+          "mode": "formdata",
+          "formdata": [
+            { "key": "document_type", "value": "cni", "type": "text" },
+            { "key": "document_number", "value": "CNI123456", "type": "text" },
+            { "key": "document", "type": "file", "src": [] }
+          ]
+        },
+        "url": { "raw": "{{baseUrl}}/v1/users/{{userId}}/verify-identity", "host": ["{{baseUrl}}"], "path": ["v1","users","{{userId}}","verify-identity"] }
+      }
+    },
+    {
+      "name": "Admin / Verify User Identity",
+      "request": {
+        "method": "PUT",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{adminToken}}" },
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"notes\": \"Vérifié manuellement par admin\"\n}"
+        },
+        "url": { "raw": "{{baseUrl}}/admin/users/{{userId}}/verify-identity", "host": ["{{baseUrl}}"], "path": ["admin","users","{{userId}}","verify-identity"] }
+      }
+    },
+    {
+      "name": "Admin / Reject User Identity",
+      "request": {
+        "method": "PUT",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{adminToken}}" },
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"reason\": \"Document illisible\",\n  \"notes\": \"Veuillez re-soumettre une photo plus nette\"\n}"
+        },
+        "url": { "raw": "{{baseUrl}}/admin/users/{{userId}}/reject-identity", "host": ["{{baseUrl}}"], "path": ["admin","users","{{userId}}","reject-identity"] }
+      }
+    },
+    {
+      "name": "Ads / Creation Data",
+      "request": {
+        "method": "GET",
+        "url": { "raw": "{{baseUrl}}/ads/creation-data", "host": ["{{baseUrl}}"], "path": ["ads","creation-data"] }
+      }
+    },
+    {
+      "name": "Ads / Index",
+      "request": {
+        "method": "GET",
+        "url": { "raw": "{{baseUrl}}/ads", "host": ["{{baseUrl}}"], "path": ["ads"] }
+      }
+    },
+    {
+      "name": "Ads / Create (multipart/form-data)",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{authToken}}" }
+        ],
+        "body": {
+          "mode": "formdata",
+          "formdata": [
+            { "key": "title", "value": "Mon annonce", "type": "text" },
+            { "key": "description", "value": "Description...", "type": "text" },
+            { "key": "price", "value": "1000", "type": "text" },
+            { "key": "subcategory_id", "value": "1", "type": "text" },
+            { "key": "location_id", "value": "1", "type": "text" },
+            { "key": "brand_id", "value": "", "type": "text" },
+            { "key": "is_negotiable", "value": "0", "type": "text" },
+            { "key": "has_discount", "value": "0", "type": "text" },
+            { "key": "filter_values", "value": "[{\"filter_id\":1,\"value\":\"Noir\"}]", "type": "text" },
+            { "key": "photos", "type": "file", "src": [] }
+          ]
+        },
+        "url": { "raw": "{{baseUrl}}/ads", "host": ["{{baseUrl}}"], "path": ["ads"] }
+      }
+    },
+    {
+      "name": "Ads / Show by slug",
+      "request": {
+        "method": "GET",
+        "url": { "raw": "{{baseUrl}}/ads/{{slug}}", "host": ["{{baseUrl}}"], "path": ["ads","{{slug}}"] }
+      }
+    },
+    {
+      "name": "Ads / Update by slug (PATCH form-data)",
+      "request": {
+        "method": "PATCH",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{authToken}}" }
+        ],
+        "body": {
+          "mode": "formdata",
+          "formdata": [
+            { "key": "title", "value": "Titre mis à jour", "type": "text" },
+            { "key": "price", "value": "950", "type": "text" },
+            { "key": "filter_values", "value": "[{\"filter_id\":1,\"value\":\"Bleu\"}]", "type": "text" },
+            { "key": "photos", "type": "file", "src": [] }
+          ]
+        },
+        "url": { "raw": "{{baseUrl}}/ads/{{slug}}", "host": ["{{baseUrl}}"], "path": ["ads","{{slug}}"] }
+      }
+    },
+    {
+      "name": "Ads / Update by slug (POST form-data)",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{authToken}}" }
+        ],
+        "body": {
+          "mode": "formdata",
+          "formdata": [
+            { "key": "title", "value": "Titre mis à jour via POST", "type": "text" },
+            { "key": "price", "value": "900", "type": "text" },
+            { "key": "filter_values", "value": "[{\"filter_id\":1,\"value\":\"Rouge\"}]", "type": "text" },
+            { "key": "photos", "type": "file", "src": [] }
+          ]
+        },
+        "url": { "raw": "{{baseUrl}}/ads/{{slug}}", "host": ["{{baseUrl}}"], "path": ["ads","{{slug}}"] }
+      }
+    },
+    {
+      "name": "Ads / Delete by slug",
+      "request": {
+        "method": "DELETE",
+        "header": [ { "key": "Authorization", "value": "Bearer {{authToken}}" } ],
+        "url": { "raw": "{{baseUrl}}/ads/{{slug}}", "host": ["{{baseUrl}}"], "path": ["ads","{{slug}}"] }
+      }
+    },
+    {
+      "name": "Ads / Get by ID",
+      "request": {
+        "method": "GET",
+        "url": { "raw": "{{baseUrl}}/ads/id/{{adId}}", "host": ["{{baseUrl}}"], "path": ["ads","id","{{adId}}"] }
+      }
+    },
+    {
+      "name": "Ads / By User",
+      "request": {
+        "method": "GET",
+        "url": { "raw": "{{baseUrl}}/ads/user/{{userId}}", "host": ["{{baseUrl}}"], "path": ["ads","user","{{userId}}"] }
+      }
+    },
+    {
+      "name": "Ads / By Category",
+      "request": {
+        "method": "GET",
+        "url": { "raw": "{{baseUrl}}/ads/category/{{categoryId}}", "host": ["{{baseUrl}}"], "path": ["ads","category","{{categoryId}}"] }
+      }
+    },
+    {
+      "name": "Ads / By Subcategory (ID or slug)",
+      "request": {
+        "method": "GET",
+        "url": { "raw": "{{baseUrl}}/ads/subcategory/{{subcategoryId}}", "host": ["{{baseUrl}}"], "path": ["ads","subcategory","{{subcategoryId}}"] }
+      }
+    },
+    {
+      "name": "Subcategories / Fields by slug",
+      "request": {
+        "method": "GET",
+        "url": { "raw": "{{baseUrl}}/subcategories/{{subcategorySlug}}/fields", "host": ["{{baseUrl}}"], "path": ["subcategories","{{subcategorySlug}}","fields"] }
+      }
+    }
+  ]
+}
+

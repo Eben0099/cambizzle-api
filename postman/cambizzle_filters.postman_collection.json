@@ -1,0 +1,86 @@
+{
+	"info": {
+		"_postman_id": "a1b2c3d4-e5f6-7890-1234-567890abcdef",
+		"name": "Cambizzle API Filters",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Get Filters by Subcategory",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/api/filters/by-subcategory/:subcategorySlug",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"filters",
+						"by-subcategory",
+						":subcategorySlug"
+					],
+					"variable": [
+						{
+							"key": "subcategorySlug",
+							"value": "smartphones"
+						}
+					]
+				},
+				"description": "Récupère tous les filtres disponibles pour une sous-catégorie donnée (par slug), avec leurs options si applicable."
+			},
+			"response": []
+		},
+		{
+			"name": "Filter Ads in Subcategory",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/api/ads/subcategory/:subcategorySlug?filter_1=valeur_test&filter_2_min=10&filter_2_max=100",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"ads",
+						"subcategory",
+						":subcategorySlug"
+					],
+					"query": [
+						{
+							"key": "filter_1",
+							"value": "valeur_test",
+							"description": "Exemple de filtre avec une valeur exacte. Remplacez '1' par l'ID réel du filtre."
+						},
+						{
+							"key": "filter_2_min",
+							"value": "10",
+							"description": "Exemple de filtre de plage (minimum). Remplacez '2' par l'ID réel du filtre."
+						},
+						{
+							"key": "filter_2_max",
+							"value": "100",
+							"description": "Exemple de filtre de plage (maximum). Remplacez '2' par l'ID réel du filtre."
+						}
+					],
+					"variable": [
+						{
+							"key": "subcategorySlug",
+							"value": "smartphones"
+						}
+					]
+				},
+				"description": "Récupère les annonces d'une sous-catégorie (par slug) en appliquant des filtres dynamiques. Les filtres sont passés en paramètres GET sous la forme `filter_{filterId}=valeur`."
+			},
+			"response": []
+		}
+	],
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://localhost:8080"
+		}
+	]
+}

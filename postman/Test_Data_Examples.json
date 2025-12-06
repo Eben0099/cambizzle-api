@@ -1,0 +1,173 @@
+{
+  "test_users": {
+    "regular_user": {
+      "first_name": "Jean",
+      "last_name": "Dupont",
+      "email": "jean.dupont@test.com",
+      "password": "password123",
+      "phone": "+33123456789"
+    },
+    "admin_user": {
+      "first_name": "Admin",
+      "last_name": "Cambizzle",
+      "email": "admin@cambizzle.com",
+      "password": "admin123",
+      "phone": "+33111111111"
+    }
+  },
+  "sample_ad": {
+    "title": "iPhone 13 Pro Max 256GB - État Neuf",
+    "description": "Vends iPhone 13 Pro Max 256GB en excellent état. Boîte et accessoires inclus. Garantie Apple restante. Prix négociable.",
+    "price": 899.99,
+    "subcategory_id": 1,
+    "location_id": 1,
+    "brand_id": 1,
+    "is_negotiable": true
+  },
+  "sample_category": {
+    "name": "Électronique",
+    "slug": "electronique",
+    "icon_path": "icons/electronics.png",
+    "is_active": true,
+    "display_order": 1
+  },
+  "sample_subcategory": {
+    "category_id": 1,
+    "name": "Téléphones",
+    "slug": "telephones",
+    "icon_path": "icons/phone.png",
+    "is_active": true,
+    "display_order": 1
+  },
+  "sample_brand": {
+    "subcategory_id": 1,
+    "name": "Apple",
+    "description": "Marque technologique américaine",
+    "logo_url": "logos/apple.png",
+    "is_active": true
+  },
+  "sample_filter": {
+    "subcategory_id": 1,
+    "name": "État",
+    "type": "select",
+    "is_required": false,
+    "display_order": 1
+  },
+  "sample_promotion_pack": {
+    "name": "Pack Premium 30 Jours",
+    "slug": "pack-premium-30",
+    "description": "Visibilité maximale avec badge premium pendant 30 jours",
+    "price": 24.99,
+    "duration_days": 30,
+    "features": [
+      "badge_premium",
+      "top_recherche",
+      "stats_detaillees",
+      "support_prioritaire"
+    ],
+    "is_featured": true,
+    "is_active": true,
+    "display_order": 1
+  },
+  "sample_message": {
+    "ad_id": 1,
+    "content": "Bonjour, votre annonce m'intéresse beaucoup. L'appareil est-il toujours disponible ? Pouvez-vous me donner plus de détails sur l'état de la batterie ?",
+    "type": "message"
+  },
+  "sample_review": {
+    "ad_id": 1,
+    "content": "Excellent vendeur ! L'iPhone était exactement comme décrit. Livraison rapide et bien emballé. Je recommande vivement !",
+    "type": "review",
+    "rating": 5
+  },
+  "sample_report": {
+    "reported_ad_id": 1,
+    "report_type": "spam",
+    "report_reason": "Contenu inapproprié",
+    "description": "Cette annonce contient des informations fausses et semble être du spam publicitaire."
+  },
+  "sample_referral": {
+    "description": "Code pour mes amis proches",
+    "max_uses": 10,
+    "bonus_amount": 5.00
+  },
+  "moderation_actions": {
+    "suspend_user": {
+      "reason": "Violation répétée des conditions d'utilisation",
+      "notes": "Plusieurs signalements pour contenu inapproprié"
+    },
+    "reject_ad": {
+      "reason": "Contenu inapproprié",
+      "notes": "Photo avec contenu sensible détecté"
+    },
+    "verify_identity": {
+      "notes": "Documents vérifiés : CNI et justificatif de domicile conformes"
+    }
+  },
+  "api_responses": {
+    "successful_registration": {
+      "status": "success",
+      "message": "Utilisateur créé avec succès",
+      "data": {
+        "user": {
+          "id_user": 123,
+          "first_name": "Jean",
+          "last_name": "Dupont",
+          "email": "jean.dupont@test.com",
+          "phone": "+33123456789",
+          "is_verified": false
+        },
+        "token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9..."
+      }
+    },
+    "successful_login": {
+      "status": "success",
+      "message": "Connexion réussie",
+      "data": {
+        "user": {
+          "id_user": 123,
+          "first_name": "Jean",
+          "last_name": "Dupont",
+          "email": "jean.dupont@test.com",
+          "role_id": 2
+        },
+        "token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9..."
+      }
+    },
+    "validation_error": {
+      "status": "error",
+      "message": "Erreur de validation",
+      "errors": {
+        "email": "L'adresse email est déjà utilisée",
+        "password": "Le mot de passe doit contenir au moins 8 caractères"
+      }
+    },
+    "unauthorized": {
+      "status": "error",
+      "message": "Token JWT invalide ou expiré"
+    }
+  },
+  "common_ids": {
+    "existing_users": [12, 13, 14, 15, 16, 17, 18, 19, 20],
+    "existing_ads": [1, 2, 3, 4, 5],
+    "categories": [1, 2, 3, 4, 5],
+    "subcategories": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+    "brands": [1, 2, 3, 4, 5],
+    "locations": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+  },
+  "filter_options": {
+    "condition": ["Neuf", "Très bon état", "Bon état", "État correct", "À réparer"],
+    "warranty": ["Sous garantie", "Hors garantie", "Garantie vendeur"],
+    "color": ["Noir", "Blanc", "Argent", "Or", "Bleu", "Rouge", "Vert"],
+    "storage": ["64GB", "128GB", "256GB", "512GB", "1TB", "2TB"]
+  },
+  "useful_queries": {
+    "recent_ads": "?page=1&limit=10&sort_by=created_at&sort_order=DESC",
+    "cheap_ads": "?page=1&limit=10&max_price=100&sort_by=price&sort_order=ASC",
+    "verified_sellers": "?page=1&limit=10&seller_verified=true",
+    "category_search": "?page=1&limit=10&category_id=1&q=iphone",
+    "admin_users_list": "?page=1&per_page=20&is_active=1",
+    "pending_moderation": "?page=1&per_page=20&moderation_status=pending",
+    "suspended_users": "?page=1&per_page=20&is_suspended=1"
+  }
+}

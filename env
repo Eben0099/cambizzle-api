@@ -1,0 +1,86 @@
+#--------------------------------------------------------------------
+# Example Environment Configuration file
+#
+# This file can be used as a starting point for your own
+# custom .env files, and contains most of the possible settings
+# available in a default install.
+#
+# By default, all of the settings are commented out. If you want
+# to override the setting, you must un-comment it by removing the '#'
+# at the beginning of the line.
+#--------------------------------------------------------------------
+
+#--------------------------------------------------------------------
+# ENVIRONMENT
+#--------------------------------------------------------------------
+
+CI_ENVIRONMENT = development
+
+#--------------------------------------------------------------------
+# APP
+#--------------------------------------------------------------------
+
+app.baseURL = 'http://localhost:8080/'
+app.indexPage = ''
+
+#--------------------------------------------------------------------
+# DATABASE
+#--------------------------------------------------------------------
+
+database.default.hostname = localhost
+database.default.database = cambizzle_db
+database.default.username = root
+database.default.password = 
+database.default.DBDriver = MySQLi
+database.default.DBPrefix =
+database.default.port = 3306
+
+#--------------------------------------------------------------------
+# ENCRYPTION
+#--------------------------------------------------------------------
+
+encryption.key = hex2bin:1f611469da7b2bf7f8c7b2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d3
+
+#--------------------------------------------------------------------
+# JWT Configuration
+#--------------------------------------------------------------------
+
+JWT_SECRET_KEY = your-super-secret-jwt-key-change-this-in-production
+JWT_TIME_TO_LIVE = 3600
+
+#--------------------------------------------------------------------
+# UPLOAD Configuration
+#--------------------------------------------------------------------
+
+UPLOAD_MAX_SIZE = 5242880
+UPLOAD_ALLOWED_TYPES = jpg,jpeg,png,gif,pdf,doc,docx
+
+#--------------------------------------------------------------------
+# EMAIL Configuration
+#--------------------------------------------------------------------
+
+EMAIL_FROM_EMAIL = noreply@cambizzle.com
+EMAIL_FROM_NAME = Cambizzle
+
+#--------------------------------------------------------------------
+# CAMPAY Configuration
+#--------------------------------------------------------------------
+
+CAMPAY_URL = https://campay.net/api/
+CAMPAY_TOKEN = 92eae805ff544579e42cf5cca55aa80896e71eb0
+CAMPAY_API_ID = suqQ-3BXPpu6EK2asPctKfjdGtyp0hk4_prR210dSSF8XHrPChpHvJyyOxMIq3zep0uxQOSfK3XZfEkudWYPjA
+CAMPAY_API_USER = yt4sQKPOjFw4ZI9yuS-G9dF1hh6oJUodDFfo1J-UwR3aCVOfz48m3H91_HJCaWOYprCQSLhnFWXGPD7mJMO55Q
+CAMPAY_API_PASS = pzB8_ZrZjL9O58nFZlZOAieWsAp6ij1cfSXdi9hvswiSE8Zr9Ru9z-H2J6P-fyg9OD2nhA53lZFItzqNv6-9Vg
+
+#--------------------------------------------------------------------
+# SESSION
+#--------------------------------------------------------------------
+
+# session.driver = 'CodeIgniter\Session\Handlers\FileHandler'
+# session.savePath = null
+
+#--------------------------------------------------------------------
+# LOGGER
+#--------------------------------------------------------------------
+
+logger.threshold = 4

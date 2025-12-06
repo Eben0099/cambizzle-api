@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Boost System - Polling Automatique</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        .container {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            max-width: 600px;
+            width: 100%;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 28px;
+        }
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #555;
+            font-weight: 600;
+            font-size: 14px;
+        }
+        input, select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+        input:focus, select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        button {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.4);
+        }
+        button:active {
+            transform: translateY(0);
+        }
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+        .status-box {
+            margin-top: 30px;
+            padding: 20px;
+            border-radius: 12px;
+            display: none;
+        }
+        .status-box.show {
+            display: block;
+        }
+        .status-box.pending {
+            background: #fff3cd;
+            border: 2px solid #ffc107;
+        }
+        .status-box.success {
+            background: #d4edda;
+            border: 2px solid #28a745;
+        }
+        .status-box.error {
+            background: #f8d7da;
+            border: 2px solid #dc3545;
+        }
+        .status-title {
+            font-weight: 700;
+            font-size: 18px;
+            margin-bottom: 10px;
+        }
+        .status-content {
+            font-size: 14px;
+            line-height: 1.6;
+        }
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #ffc107;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            display: inline-block;
+            margin-right: 10px;
+            vertical-align: middle;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .log {
+            margin-top: 20px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            max-height: 300px;
+            overflow-y: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            line-height: 1.5;
+        }
+        .log-entry {
+            margin-bottom: 5px;
+            color: #333;
+        }
+        .log-entry.info { color: #0066cc; }
+        .log-entry.success { color: #28a745; }
+        .log-entry.error { color: #dc3545; }
+        .ad-details {
+            background: #e7f3ff;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+        }
+        .ad-details h4 {
+            color: #0066cc;
+            margin-bottom: 10px;
+        }
+        .ad-details p {
+            margin: 5px 0;
+            font-size: 13px;
+        }
+        .campay-info {
+            background: #fff8e1;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+        }
+        .campay-info h4 {
+            color: #ff9800;
+            margin-bottom: 10px;
+        }
+        .campay-info p {
+            margin: 5px 0;
+            font-size: 13px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚀 Test Boost System</h1>
+        <p class="subtitle">Polling automatique du statut de paiement</p>
+        
+        <form id="boostForm">
+            <div class="form-group">
+                <label for="apiUrl">URL API</label>
+                <input type="text" id="apiUrl" value="http://localhost:8080" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="userToken">Token Utilisateur (JWT)</label>
+                <input type="text" id="userToken" placeholder="eyJ0eXAiOiJKV1Qi..." required>
+            </div>
+            
+            <div class="form-group">
+                <label for="adSlug">Slug de l'annonce</label>
+                <input type="text" id="adSlug" placeholder="iphone-13-pro-douala" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="packId">Pack de promotion</label>
+                <select id="packId" required>
+                    <option value="1">Pack Basic (7 jours)</option>
+                    <option value="2">Pack Standard (14 jours)</option>
+                    <option value="3">Pack Premium (30 jours)</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="phone">Numéro de téléphone</label>
+                <input type="tel" id="phone" placeholder="237690000000" required>
+            </div>
+            
+            <button type="submit" id="boostBtn">Booster l'annonce</button>
+        </form>
+        
+        <div id="statusBox" class="status-box">
+            <div class="status-title" id="statusTitle"></div>
+            <div class="status-content" id="statusContent"></div>
+        </div>
+        
+        <div id="log" class="log" style="display: none;"></div>
+    </div>
+
+    <script>
+        let pollInterval = null;
+        let pollCount = 0;
+        const MAX_POLLS = 60; // 5 minutes
+
+        const form = document.getElementById('boostForm');
+        const boostBtn = document.getElementById('boostBtn');
+        const statusBox = document.getElementById('statusBox');
+        const statusTitle = document.getElementById('statusTitle');
+        const statusContent = document.getElementById('statusContent');
+        const logDiv = document.getElementById('log');
+
+        function addLog(message, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString();
+            const entry = document.createElement('div');
+            entry.className = `log-entry ${type}`;
+            entry.textContent = `[${timestamp}] ${message}`;
+            logDiv.appendChild(entry);
+            logDiv.scrollTop = logDiv.scrollHeight;
+            logDiv.style.display = 'block';
+        }
+
+        function showStatus(type, title, content) {
+            statusBox.className = `status-box show ${type}`;
+            statusTitle.textContent = title;
+            statusContent.innerHTML = content;
+        }
+
+        async function initiateBoost(apiUrl, token, adSlug, packId, phone) {
+            try {
+                addLog('🚀 Initiation du boost...', 'info');
+                
+                const response = await fetch(`${apiUrl}/api/boost/boost-existing-ad/${adSlug}`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        pack_id: packId,
+                        phone: phone,
+                        payment_method: 'mobile_money'
+                    })
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(data.message || 'Erreur initiation boost');
+                }
+
+                addLog('✓ Boost initié avec succès', 'success');
+                addLog(`Payment ID: ${data.payment.id}`, 'info');
+                addLog(`Référence: ${data.payment.reference}`, 'info');
+
+                return data.payment.id;
+            } catch (error) {
+                addLog(`✗ Erreur: ${error.message}`, 'error');
+                throw error;
+            }
+        }
+
+        async function checkPaymentStatus(apiUrl, token, paymentId) {
+            try {
+                const response = await fetch(`${apiUrl}/api/boost/check-payment/${paymentId}`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(data.message || 'Erreur vérification statut');
+                }
+
+                return data;
+            } catch (error) {
+                addLog(`✗ Erreur vérification: ${error.message}`, 'error');
+                return null;
+            }
+        }
+
+        function startPolling(apiUrl, token, paymentId) {
+            pollCount = 0;
+            
+            showStatus('pending', '⏳ Vérification en cours...', 
+                `<div class="spinner"></div> En attente de la validation du paiement...<br>
+                <small>Veuillez valider le paiement sur votre téléphone</small>`);
+
+            pollInterval = setInterval(async () => {
+                pollCount++;
+                addLog(`[${pollCount}/${MAX_POLLS}] Vérification du statut...`, 'info');
+
+                const data = await checkPaymentStatus(apiUrl, token, paymentId);
+
+                if (!data) {
+                    return; // Continuer le polling
+                }
+
+                const { status, updated, message, campay, ad } = data;
+
+                addLog(`Statut: ${status} ${updated ? '(MIS À JOUR)' : ''}`, 'info');
+
+                if (campay) {
+                    addLog(`Campay: ${campay.status} - ${campay.amount} ${campay.currency}`, 'info');
+                }
+
+                if (status === 'paid') {
+                    clearInterval(pollInterval);
+                    addLog('✓✓✓ SUCCÈS: Boost activé!', 'success');
+                    
+                    let content = `✅ Paiement confirmé et boost activé avec succès!<br><br>`;
+                    
+                    if (campay) {
+                        content += `<div class="campay-info">
+                            <h4>📱 Informations Campay</h4>
+                            <p><strong>Référence:</strong> ${campay.reference}</p>
+                            <p><strong>Montant:</strong> ${campay.amount} ${campay.currency}</p>
+                            <p><strong>Opérateur:</strong> ${campay.operator}</p>
+                            ${campay.operator_reference ? `<p><strong>Réf. opérateur:</strong> ${campay.operator_reference}</p>` : ''}
+                        </div>`;
+                    }
+                    
+                    if (ad) {
+                        content += `<div class="ad-details">
+                            <h4>📢 Annonce Boostée</h4>
+                            <p><strong>Titre:</strong> ${ad.title}</p>
+                            <p><strong>Slug:</strong> ${ad.slug}</p>
+                            <p><strong>Début:</strong> ${ad.boost_start}</p>
+                            <p><strong>Fin:</strong> ${ad.boost_end}</p>
+                        </div>`;
+                    }
+                    
+                    showStatus('success', '✅ Boost Activé!', content);
+                    boostBtn.disabled = false;
+                    
+                } else if (status === 'failed') {
+                    clearInterval(pollInterval);
+                    addLog('✗✗✗ ÉCHEC: Paiement échoué', 'error');
+                    
+                    showStatus('error', '❌ Paiement Échoué', 
+                        `Le paiement n'a pas pu être traité.<br><br>
+                        <strong>Message:</strong> ${message}<br><br>
+                        Veuillez réessayer ou contacter le support.`);
+                    boostBtn.disabled = false;
+                    
+                } else {
+                    // Toujours en attente
+                    const campayStatus = campay ? campay.status : 'UNKNOWN';
+                    showStatus('pending', '⏳ En attente de validation...', 
+                        `<div class="spinner"></div> Statut Campay: ${campayStatus}<br>
+                        <small>Tentative ${pollCount}/${MAX_POLLS} - Prochaine vérification dans 5s...</small>`);
+                }
+
+                // Timeout après 60 tentatives
+                if (pollCount >= MAX_POLLS) {
+                    clearInterval(pollInterval);
+                    addLog('⏱️ TIMEOUT: 60 tentatives atteintes', 'error');
+                    
+                    showStatus('error', '⏱️ Timeout', 
+                        `Le paiement prend trop de temps.<br><br>
+                        <strong>Note:</strong> Le paiement peut encore être en cours de traitement.<br>
+                        Vérifiez manuellement le statut dans quelques minutes.`);
+                    boostBtn.disabled = false;
+                }
+            }, 5000); // 5 secondes
+        }
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const apiUrl = document.getElementById('apiUrl').value.trim();
+            const token = document.getElementById('userToken').value.trim();
+            const adSlug = document.getElementById('adSlug').value.trim();
+            const packId = document.getElementById('packId').value;
+            const phone = document.getElementById('phone').value.trim();
+
+            // Reset
+            if (pollInterval) clearInterval(pollInterval);
+            logDiv.innerHTML = '';
+            statusBox.className = 'status-box';
+            boostBtn.disabled = true;
+
+            try {
+                // 1. Initier le boost
+                const paymentId = await initiateBoost(apiUrl, token, adSlug, packId, phone);
+
+                // 2. Démarrer le polling
+                addLog('🔄 Démarrage du polling (5s)...', 'info');
+                startPolling(apiUrl, token, paymentId);
+
+            } catch (error) {
+                showStatus('error', '❌ Erreur', error.message);
+                boostBtn.disabled = false;
+            }
+        });
+    </script>
+</body>
+</html>

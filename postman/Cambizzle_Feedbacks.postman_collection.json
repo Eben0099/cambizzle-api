@@ -1,0 +1,255 @@
+{
+  "info": {
+    "name": "Cambizzle - Feedbacks",
+    "_postman_id": "8b51e9f1-5c9f-4d52-9f33-ffdb6cfe0001",
+    "description": "Tests des endpoints de feedback d'annonces",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "List approved feedbacks (public)",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/api/ads/1/feedbacks?limit=10&page=1",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "ads",
+            "1",
+            "feedbacks"
+          ],
+          "query": [
+            {
+              "key": "limit",
+              "value": "10"
+            },
+            {
+              "key": "page",
+              "value": "1"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Summary by ad (public)",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/api/ads/1/feedbacks/summary",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "ads",
+            "1",
+            "feedbacks",
+            "summary"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Create feedback (auth)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{auth_token}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"rating\": 5,\n  \"content\": \"Très bonne annonce\",\n  \"photos\": [\"uploads/ads/example1.jpg\"]\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/api/ads/1/feedbacks",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "ads",
+            "1",
+            "feedbacks"
+          ]
+        }
+      }
+    },
+    {
+      "name": "My feedbacks (auth)",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{auth_token}}"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}/api/my/feedbacks?limit=10&page=1",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "my",
+            "feedbacks"
+          ],
+          "query": [
+            {
+              "key": "limit",
+              "value": "10"
+            },
+            {
+              "key": "page",
+              "value": "1"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Delete my pending feedback (auth)",
+      "request": {
+        "method": "DELETE",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{auth_token}}"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}/api/feedbacks/1",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "feedbacks",
+            "1"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Admin - list pending",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{admin_token}}"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}/api/admin/feedbacks/pending?limit=20&page=1",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "admin",
+            "feedbacks",
+            "pending"
+          ],
+          "query": [
+            {
+              "key": "limit",
+              "value": "20"
+            },
+            {
+              "key": "page",
+              "value": "1"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Admin - approve",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{admin_token}}"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}/api/admin/feedbacks/1/approve",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "admin",
+            "feedbacks",
+            "1",
+            "approve"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Admin - reject",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{admin_token}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{ \n  \"admin_notes\": \"Contenu inapproprié\" \n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/api/admin/feedbacks/1/reject",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "admin",
+            "feedbacks",
+            "1",
+            "reject"
+          ]
+        }
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:8080"
+    },
+    {
+      "key": "auth_token",
+      "value": ""
+    },
+    {
+      "key": "admin_token",
+      "value": ""
+    }
+  ]
+}
+
+

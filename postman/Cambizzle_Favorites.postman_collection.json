@@ -1,0 +1,100 @@
+{
+  "info": {
+    "name": "Cambizzle - Favorites",
+    "_postman_id": "8b51e9f1-5c9f-4d52-9f33-ffdb6cfe0002",
+    "description": "Tests des endpoints de favoris",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Toggle favorite",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{auth_token}}"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}/api/ads/1/favorite",
+          "host": ["{{base_url}}"],
+          "path": ["api", "ads", "1", "favorite"]
+        },
+        "description": "Ajoute ou retire une annonce des favoris"
+      }
+    },
+    {
+      "name": "Remove from favorites",
+      "request": {
+        "method": "DELETE",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{auth_token}}"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}/api/ads/1/favorite",
+          "host": ["{{base_url}}"],
+          "path": ["api", "ads", "1", "favorite"]
+        },
+        "description": "Retire une annonce des favoris"
+      }
+    },
+    {
+      "name": "Check if favorite",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{auth_token}}"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}/api/ads/1/favorite",
+          "host": ["{{base_url}}"],
+          "path": ["api", "ads", "1", "favorite"]
+        },
+        "description": "Vérifie si une annonce est dans les favoris"
+      }
+    },
+    {
+      "name": "List my favorites",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{auth_token}}"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}/api/favorites?limit=10&page=1&sort_by=created_at&sort_order=DESC",
+          "host": ["{{base_url}}"],
+          "path": ["api", "favorites"],
+          "query": [
+            {
+              "key": "limit",
+              "value": "10"
+            },
+            {
+              "key": "page",
+              "value": "1"
+            },
+            {
+              "key": "sort_by",
+              "value": "created_at"
+            },
+            {
+              "key": "sort_order",
+              "value": "DESC"
+            }
+          ]
+        },
+        "description": "Liste toutes les annonces en favoris"
+      }
+    }
+  ]
+}

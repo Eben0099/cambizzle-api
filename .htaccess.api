@@ -1,0 +1,31 @@
+# .htaccess pour le dossier API (/api/)
+# Redirection vers le sous-dossier public de CodeIgniter
+
+RewriteEngine On
+
+# Empêcher l'accès direct aux fichiers sensibles
+<Files ".env*">
+    Order allow,deny
+    Deny from all
+</Files>
+
+<Files "composer.*">
+    Order allow,deny
+    Deny from all
+</Files>
+
+# Redirection vers le dossier public de CodeIgniter
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^(.*)$ public/$1 [L]
+
+# Si le fichier existe dans public, l'afficher directement
+RewriteCond %{REQUEST_FILENAME} -f
+RewriteRule ^(.*)$ public/$1 [L]
+
+# Protection contre l'inclusion de fichiers
+php_flag allow_url_include Off
+
+# Désactiver l'affichage des erreurs en production
+php_flag display_errors Off
+php_flag log_errors On

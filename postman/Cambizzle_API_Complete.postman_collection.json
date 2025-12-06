@@ -1,0 +1,1425 @@
+{
+  "info": {
+    "name": "Cambizzle API - Collection Complète",
+    "description": "Collection Postman complète pour tester l'API Cambizzle avec tous les endpoints (Auth, Users, Ads, Admin, etc.)",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "cambizzle-api"
+  },
+  "item": [
+    {
+      "name": "1. Authentification",
+      "item": [
+        {
+          "name": "Inscription Utilisateur",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"first_name\": \"John\",\n  \"last_name\": \"Doe\",\n  \"email\": \"john.doe@example.com\",\n  \"password\": \"password123\",\n  \"phone\": \"+33123456789\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/auth/register",
+              "host": ["{{base_url}}"],
+              "path": ["api", "auth", "register"]
+            }
+          }
+        },
+        {
+          "name": "Connexion Utilisateur",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"john.doe@example.com\",\n  \"password\": \"password123\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/auth/login",
+              "host": ["{{base_url}}"],
+              "path": ["api", "auth", "login"]
+            }
+          }
+        },
+        {
+          "name": "Profil Utilisateur Connecté",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{user_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/auth/me",
+              "host": ["{{base_url}}"],
+              "path": ["api", "auth", "me"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "2. Gestion des Utilisateurs",
+      "item": [
+        {
+          "name": "Lister les Utilisateurs (Admin)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/admin/users?page=1&per_page=20",
+              "host": ["{{base_url}}"],
+              "path": ["api", "admin", "users"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "per_page",
+                  "value": "20"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Détails Utilisateur (Admin)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/users/{{user_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "users", "{{user_id}}"]
+            }
+          }
+        },
+        {
+          "name": "Mettre à Jour Utilisateur",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{user_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"first_name\": \"John Updated\",\n  \"last_name\": \"Doe Updated\",\n  \"phone\": \"+33111222333\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/users/{{user_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "users", "{{user_id}}"]
+            }
+          }
+        },
+        {
+          "name": "Changer Mot de Passe",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{user_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"current_password\": \"password123\",\n  \"new_password\": \"newpassword123\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/users/{{user_id}}/change-password",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "users", "{{user_id}}", "change-password"]
+            }
+          }
+        },
+        {
+          "name": "Vérifier Identité (Upload)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{user_token}}"
+              }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "document_type",
+                  "value": "CNI"
+                },
+                {
+                  "key": "document_number",
+                  "value": "123456789"
+                },
+                {
+                  "key": "document",
+                  "type": "file",
+                  "src": []
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/users/{{user_id}}/verify-identity",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "users", "{{user_id}}", "verify-identity"]
+            }
+          }
+        },
+        {
+          "name": "Suspendre Utilisateur (Admin)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"reason\": \"Violation des conditions d'utilisation\",\n  \"notes\": \"Spam répété\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/admin/users/{{user_id}}/suspend",
+              "host": ["{{base_url}}"],
+              "path": ["api", "admin", "users", "{{user_id}}", "suspend"]
+            }
+          }
+        },
+        {
+          "name": "Réactiver Utilisateur (Admin)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"notes\": \"Période de suspension écoulée\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/admin/users/{{user_id}}/unsuspend",
+              "host": ["{{base_url}}"],
+              "path": ["api", "admin", "users", "{{user_id}}", "unsuspend"]
+            }
+          }
+        },
+        {
+          "name": "Vérifier Identité (Admin)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"notes\": \"Documents validés - CNI conforme\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/admin/users/{{user_id}}/verify-identity",
+              "host": ["{{base_url}}"],
+              "path": ["api", "admin", "users", "{{user_id}}", "verify-identity"]
+            }
+          }
+        },
+        {
+          "name": "Supprimer Utilisateur (Admin)",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"reason\": \"Demande de suppression du compte\",\n  \"notes\": \"Utilisateur a fait une demande explicite\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/admin/users/{{user_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "admin", "users", "{{user_id}}"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "3. Gestion des Annonces",
+      "item": [
+        {
+          "name": "Données de Création d'Annonce",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{user_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/ads/creation-data",
+              "host": ["{{base_url}}"],
+              "path": ["api", "ads", "creation-data"]
+            }
+          }
+        },
+        {
+          "name": "Créer une Annonce",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{user_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"iPhone 13 Pro Max 256GB\",\n  \"description\": \"Excellent état, boîte et accessoires inclus\",\n  \"price\": 800.00,\n  \"subcategory_id\": 2,\n  \"location_id\": 1,\n  \"brand_id\": 1,\n  \"is_negotiable\": true\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/ads",
+              "host": ["{{base_url}}"],
+              "path": ["api", "ads"]
+            }
+          }
+        },
+        {
+          "name": "Lister les Annonces",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/ads?page=1&limit=20&q=iphone",
+              "host": ["{{base_url}}"],
+              "path": ["api", "ads"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "20"
+                },
+                {
+                  "key": "q",
+                  "value": "iphone"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Détails d'une Annonce",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/ads/{{ad_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "ads", "{{ad_id}}"]
+            }
+          }
+        },
+        {
+          "name": "Mettre à Jour une Annonce",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{user_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"iPhone 13 Pro Max 256GB - État impeccable\",\n  \"price\": 750.00\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/ads/{{ad_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "ads", "{{ad_id}}"]
+            }
+          }
+        },
+        {
+          "name": "Upload Photos d'Annonce",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{user_token}}"
+              }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "photos[]",
+                  "type": "file",
+                  "src": []
+                },
+                {
+                  "key": "photos[]",
+                  "type": "file",
+                  "src": []
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/api/ads/{{ad_id}}/photos",
+              "host": ["{{base_url}}"],
+              "path": ["api", "ads", "{{ad_id}}", "photos"]
+            }
+          }
+        },
+        {
+          "name": "Supprimer une Annonce",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{user_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/ads/{{ad_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "ads", "{{ad_id}}"]
+            }
+          }
+        },
+        {
+          "name": "Annonces en Attente (Admin)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/admin/ads/pending",
+              "host": ["{{base_url}}"],
+              "path": ["api", "admin", "ads", "pending"]
+            }
+          }
+        },
+        {
+          "name": "Approuver une Annonce (Admin)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"notes\": \"Annonce conforme aux règles\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/admin/ads/{{ad_id}}/approve",
+              "host": ["{{base_url}}"],
+              "path": ["api", "admin", "ads", "{{ad_id}}", "approve"]
+            }
+          }
+        },
+        {
+          "name": "Rejeter une Annonce (Admin)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"reason\": \"Contenu inapproprié\",\n  \"notes\": \"Photo suggestive\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/admin/ads/{{ad_id}}/reject",
+              "host": ["{{base_url}}"],
+              "path": ["api", "admin", "ads", "{{ad_id}}", "reject"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "4. Messages et Avis",
+      "item": [
+        {
+          "name": "Messages de l'Utilisateur",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{user_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/messages",
+              "host": ["{{base_url}}"],
+              "path": ["api", "messages"]
+            }
+          }
+        },
+        {
+          "name": "Envoyer un Message",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{user_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"ad_id\": 1,\n  \"content\": \"Bonjour, votre annonce m'intéresse\",\n  \"type\": \"message\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/messages",
+              "host": ["{{base_url}}"],
+              "path": ["api", "messages"]
+            }
+          }
+        },
+        {
+          "name": "Envoyer un Avis",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{user_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"ad_id\": 1,\n  \"content\": \"Très bon vendeur, article conforme\",\n  \"type\": \"review\",\n  \"rating\": 5\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/messages",
+              "host": ["{{base_url}}"],
+              "path": ["api", "messages"]
+            }
+          }
+        },
+        {
+          "name": "Marquer comme Lu",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{user_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/messages/{{message_id}}/read",
+              "host": ["{{base_url}}"],
+              "path": ["api", "messages", "{{message_id}}", "read"]
+            }
+          }
+        },
+        {
+          "name": "Nombre de Messages Non Lus",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{user_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/messages/unread/count",
+              "host": ["{{base_url}}"],
+              "path": ["api", "messages", "unread", "count"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "5. Signalements",
+      "item": [
+        {
+          "name": "Créer un Signalement",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{user_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"reported_ad_id\": 1,\n  \"report_type\": \"spam\",\n  \"report_reason\": \"Contenu inapproprié\",\n  \"description\": \"Cette annonce contient du contenu inapproprié\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/reports",
+              "host": ["{{base_url}}"],
+              "path": ["api", "reports"]
+            }
+          }
+        },
+        {
+          "name": "Signalements de l'Utilisateur",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{user_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/reports",
+              "host": ["{{base_url}}"],
+              "path": ["api", "reports"]
+            }
+          }
+        },
+        {
+          "name": "Signalements en Attente (Admin)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/admin/reports",
+              "host": ["{{base_url}}"],
+              "path": ["api", "admin", "reports"]
+            }
+          }
+        },
+        {
+          "name": "Résoudre un Signalement (Admin)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"notes\": \"Signalement analysé et traité\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/admin/reports/{{report_id}}/resolve",
+              "host": ["{{base_url}}"],
+              "path": ["api", "admin", "reports", "{{report_id}}", "resolve"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "6. Catégories et Sous-catégories",
+      "item": [
+        {
+          "name": "Lister les Catégories",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/categories",
+              "host": ["{{base_url}}"],
+              "path": ["api", "categories"]
+            }
+          }
+        },
+        {
+          "name": "Sous-catégories d'une Catégorie",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/categories/{{category_id}}/subcategories",
+              "host": ["{{base_url}}"],
+              "path": ["api", "categories", "{{category_id}}", "subcategories"]
+            }
+          }
+        },
+        {
+          "name": "Catégories avec Stats (Admin)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/categories/stats",
+              "host": ["{{base_url}}"],
+              "path": ["api", "categories", "stats"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "7. Marques",
+      "item": [
+        {
+          "name": "Lister les Marques",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/brands?subcategory_id={{subcategory_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "brands"],
+              "query": [
+                {
+                  "key": "subcategory_id",
+                  "value": "{{subcategory_id}}"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "8. Parrainage",
+      "item": [
+        {
+          "name": "Codes de Parrainage",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{user_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/referrals",
+              "host": ["{{base_url}}"],
+              "path": ["api", "referrals"]
+            }
+          }
+        },
+        {
+          "name": "Créer un Code de Parrainage",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{user_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"description\": \"Code pour mes amis\",\n  \"max_uses\": 50,\n  \"bonus_amount\": 10.00\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/referrals",
+              "host": ["{{base_url}}"],
+              "path": ["api", "referrals"]
+            }
+          }
+        },
+        {
+          "name": "Utiliser un Code de Parrainage",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{user_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"code\": \"ABC123DEF\",\n  \"ad_id\": 1\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/referrals/use",
+              "host": ["{{base_url}}"],
+              "path": ["api", "referrals", "use"]
+            }
+          }
+        },
+        {
+          "name": "Statistiques de Parrainage",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{user_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/referrals/stats",
+              "host": ["{{base_url}}"],
+              "path": ["api", "referrals", "stats"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "9. Administration - Dashboard",
+      "item": [
+        {
+          "name": "Dashboard Admin",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/admin/dashboard",
+              "host": ["{{base_url}}"],
+              "path": ["api", "admin", "dashboard"]
+            }
+          }
+        },
+        {
+          "name": "Logs de Modération",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/admin/moderation-logs?page=1&limit=50",
+              "host": ["{{base_url}}"],
+              "path": ["api", "admin", "moderation-logs"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "50"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "10. Administration - Référentiels",
+      "item": [
+        {
+          "name": "Lister les Catégories (Admin)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/admin/referentials/categories?page=1&per_page=20",
+              "host": ["{{base_url}}"],
+              "path": ["api", "admin", "referentials", "categories"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "per_page",
+                  "value": "20"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Créer une Catégorie (Admin)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Véhicules\",\n  \"slug\": \"vehicules\",\n  \"icon_path\": \"icons/car.png\",\n  \"is_active\": true,\n  \"display_order\": 1\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/admin/referentials/categories",
+              "host": ["{{base_url}}"],
+              "path": ["api", "admin", "referentials", "categories"]
+            }
+          }
+        },
+        {
+          "name": "Mettre à Jour une Catégorie (Admin)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Véhicules Modifié\",\n  \"is_active\": true\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/admin/referentials/categories/{{category_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "admin", "referentials", "categories", "{{category_id}}"]
+            }
+          }
+        },
+        {
+          "name": "Lister les Sous-catégories (Admin)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/admin/referentials/subcategories?page=1&per_page=20",
+              "host": ["{{base_url}}"],
+              "path": ["api", "admin", "referentials", "subcategories"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "per_page",
+                  "value": "20"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Créer une Sous-catégorie (Admin)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"category_id\": 1,\n  \"name\": \"Voitures\",\n  \"slug\": \"voitures\",\n  \"is_active\": true,\n  \"display_order\": 1\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/admin/referentials/subcategories",
+              "host": ["{{base_url}}"],
+              "path": ["api", "admin", "referentials", "subcategories"]
+            }
+          }
+        },
+        {
+          "name": "Lister les Filtres (Admin)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/admin/referentials/filters/{{subcategory_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "admin", "referentials", "filters", "{{subcategory_id}}"]
+            }
+          }
+        },
+        {
+          "name": "Créer un Filtre (Admin)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"subcategory_id\": 1,\n  \"name\": \"Marque\",\n  \"type\": \"select\",\n  \"is_required\": false,\n  \"display_order\": 1\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/admin/referentials/filters",
+              "host": ["{{base_url}}"],
+              "path": ["api", "admin", "referentials", "filters"]
+            }
+          }
+        },
+        {
+          "name": "Lister les Marques (Admin)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/admin/referentials/brands?page=1&per_page=20",
+              "host": ["{{base_url}}"],
+              "path": ["api", "admin", "referentials", "brands"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "per_page",
+                  "value": "20"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Créer une Marque (Admin)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"subcategory_id\": 1,\n  \"name\": \"Peugeot\",\n  \"description\": \"Constructeur automobile français\",\n  \"logo_url\": \"logos/peugeot.png\",\n  \"is_active\": true\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/admin/referentials/brands",
+              "host": ["{{base_url}}"],
+              "path": ["api", "admin", "referentials", "brands"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "11. Administration - Promotions",
+      "item": [
+        {
+          "name": "Lister les Packs Promotionnels (Admin)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/admin/promotions/packs?page=1&per_page=20",
+              "host": ["{{base_url}}"],
+              "path": ["api", "admin", "promotions", "packs"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "per_page",
+                  "value": "20"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Créer un Pack Promotionnel (Admin)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Pack Premium\",\n  \"slug\": \"pack-premium\",\n  \"description\": \"Visibilité maximale pendant 30 jours\",\n  \"price\": 19.99,\n  \"duration_days\": 30,\n  \"features\": [\"badge_premium\", \"top_annonce\", \"stats_detaillees\"],\n  \"is_featured\": true,\n  \"is_active\": true,\n  \"display_order\": 1\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/admin/promotions/packs",
+              "host": ["{{base_url}}"],
+              "path": ["api", "admin", "promotions", "packs"]
+            }
+          }
+        },
+        {
+          "name": "Promotions Actives (Admin)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/admin/promotions/active",
+              "host": ["{{base_url}}"],
+              "path": ["api", "admin", "promotions", "active"]
+            }
+          }
+        },
+        {
+          "name": "Activer une Promotion (Admin)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"ad_id\": 123,\n  \"pack_id\": 1,\n  \"user_id\": 456\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/admin/promotions/activate",
+              "host": ["{{base_url}}"],
+              "path": ["api", "admin", "promotions", "activate"]
+            }
+          }
+        },
+        {
+          "name": "Statistiques des Promotions (Admin)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/admin/promotions/stats",
+              "host": ["{{base_url}}"],
+              "path": ["api", "admin", "promotions", "stats"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "12. Administration - Reporting",
+      "item": [
+        {
+          "name": "Statistiques Globales (Admin)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/admin/reporting/global-stats",
+              "host": ["{{base_url}}"],
+              "path": ["api", "admin", "reporting", "global-stats"]
+            }
+          }
+        },
+        {
+          "name": "Statistiques Détaillées (Admin)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/admin/reporting/detailed-stats?start_date=2025-10-01&end_date=2025-10-11",
+              "host": ["{{base_url}}"],
+              "path": ["api", "admin", "reporting", "detailed-stats"],
+              "query": [
+                {
+                  "key": "start_date",
+                  "value": "2025-10-01"
+                },
+                {
+                  "key": "end_date",
+                  "value": "2025-10-11"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Export des Données (Admin)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/admin/reporting/export?type=ads&start_date=2025-10-01&end_date=2025-10-11&format=json",
+              "host": ["{{base_url}}"],
+              "path": ["api", "admin", "reporting", "export"],
+              "query": [
+                {
+                  "key": "type",
+                  "value": "ads"
+                },
+                {
+                  "key": "start_date",
+                  "value": "2025-10-01"
+                },
+                {
+                  "key": "end_date",
+                  "value": "2025-10-11"
+                },
+                {
+                  "key": "format",
+                  "value": "json"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "// Auto-set Content-Type for JSON requests",
+          "if (pm.request.body && pm.request.body.mode === 'raw' && pm.request.body.raw) {",
+          "    pm.request.headers.upsert({key: 'Content-Type', value: 'application/json'});",
+          "}"
+        ]
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:8080",
+      "type": "string"
+    },
+    {
+      "key": "user_token",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "admin_token",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "user_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "ad_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "category_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "subcategory_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "message_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "report_id",
+      "value": "",
+      "type": "string"
+    }
+  ]
+}

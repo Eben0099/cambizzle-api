@@ -1,0 +1,316 @@
+{
+	"info": {
+		"_postman_id": "boost-system-collection",
+		"name": "Cambizzle - Boost System API",
+		"description": "Collection pour tester le système de boost d'annonce",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Promotion Packs",
+			"item": [
+				{
+					"name": "Liste des packs de promotion",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/promotion-packs",
+							"host": ["{{base_url}}"],
+							"path": ["api", "promotion-packs"]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Détails d'un pack",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/promotion-packs/1",
+							"host": ["{{base_url}}"],
+							"path": ["api", "promotion-packs", "1"]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Créer un pack (Admin)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{admin_token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Boost 60 jours\",\n  \"duration_days\": 60,\n  \"price\": 45000.00,\n  \"type\": \"boost\",\n  \"is_active\": 1\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/promotion-packs",
+							"host": ["{{base_url}}"],
+							"path": ["api", "promotion-packs"]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Boost Annonce Existante",
+			"item": [
+				{
+					"name": "1. Booster une annonce existante",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{user_token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"user_id\": 33,\n  \"pack_id\": 1,\n  \"phone\": \"237670000000\",\n  \"payment_method\": \"mobile_money\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/boost/boost-existing-ad/{{ad_slug}}",
+							"host": ["{{base_url}}"],
+							"path": ["api", "boost", "boost-existing-ad", "{{ad_slug}}"]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "2. Vérifier le statut du paiement",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{user_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/boost/check-payment/{{payment_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["api", "boost", "check-payment", "{{payment_id}}"]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Vérifier statut paiement (Check Payment)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// Script pour polling automatique toutes les 5 secondes",
+									"const response = pm.response.json();",
+									"",
+									"console.log('Statut:', response.status);",
+									"console.log('Message:', response.message);",
+									"",
+									"// Si le paiement est toujours en attente",
+									"if (response.status === 'pending') {",
+									"    // Incrémenter le compteur de tentatives",
+									"    let attempts = pm.environment.get('poll_attempts') || 0;",
+									"    attempts++;",
+									"    pm.environment.set('poll_attempts', attempts);",
+									"    ",
+									"    console.log(`Tentative ${attempts}/60 - Statut: ${response.campay?.status || 'UNKNOWN'}`);",
+									"    ",
+									"    // Arrêter après 60 tentatives (5 minutes)",
+									"    if (attempts < 60) {",
+									"        // Relancer la requête après 5 secondes",
+									"        setTimeout(() => {}, 5000);",
+									"        console.log('⏳ Nouvelle vérification dans 5 secondes...');",
+									"        ",
+									"        // Note: Pour polling auto, utiliser Newman ou scripts externes",
+									"        // Postman UI ne supporte pas le polling automatique natif",
+									"    } else {",
+									"        console.log('⏱️ Timeout: 60 tentatives atteintes (5 minutes)');",
+									"        pm.environment.unset('poll_attempts');",
+									"    }",
+									"} else if (response.status === 'paid') {",
+									"    console.log('✅ SUCCÈS: Paiement confirmé et boost activé!');",
+									"    console.log('Annonce:', response.ad);",
+									"    pm.environment.unset('poll_attempts');",
+									"} else if (response.status === 'failed') {",
+									"    console.log('❌ ÉCHEC: Paiement échoué');",
+									"    pm.environment.unset('poll_attempts');",
+									"}",
+									"",
+									"// Tests automatiques",
+									"pm.test('Response status is 200', () => {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test('Response has payment_id', () => {",
+									"    pm.expect(response).to.have.property('payment_id');",
+									"});",
+									"",
+									"pm.test('Response has status', () => {",
+									"    pm.expect(response).to.have.property('status');",
+									"    pm.expect(['pending', 'paid', 'failed']).to.include(response.status);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{user_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/boost/check-payment/{{payment_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["api", "boost", "check-payment", "{{payment_id}}"]
+						},
+						"description": "Vérifie le statut du paiement auprès de Campay et met à jour la BD automatiquement. \n\n**Utilisation:** Appeler cette requête toutes les 5 secondes après avoir initié un boost jusqu'à ce que le statut devienne 'paid' ou 'failed'.\n\n**Réponse possible:**\n- status: 'pending' → Continuer le polling\n- status: 'paid' → Boost activé, arrêter le polling\n- status: 'failed' → Paiement échoué, arrêter le polling"
+					},
+					"response": []
+				},
+				{
+					"name": "Relancer un paiement échoué",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{user_token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"phone\": \"237670000000\",\n  \"payment_method\": \"mobile_money\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/boost/retry-payment/{{payment_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["api", "boost", "retry-payment", "{{payment_id}}"]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Boost Gratuit",
+			"item": [
+				{
+					"name": "Publier avec boost gratuit",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{user_token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"ad_id\": 55,\n  \"user_id\": 33,\n  \"free_days\": 14\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/boost/publish-free",
+							"host": ["{{base_url}}"],
+							"path": ["api", "boost", "publish-free"]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Annonces Boostées",
+			"item": [
+				{
+					"name": "Liste des annonces boostées",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/boost/list-boosted-ads",
+							"host": ["{{base_url}}"],
+							"path": ["api", "boost", "list-boosted-ads"]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://localhost:8080",
+			"type": "string"
+		},
+		{
+			"key": "user_token",
+			"value": "YOUR_USER_TOKEN_HERE",
+			"type": "string"
+		},
+		{
+			"key": "admin_token",
+			"value": "YOUR_ADMIN_TOKEN_HERE",
+			"type": "string"
+		},
+		{
+			"key": "ad_slug",
+			"value": "iphone-14-pro-max-1759488737",
+			"type": "string"
+		},
+		{
+			"key": "payment_id",
+			"value": "1",
+			"type": "string"
+		}
+	]
+}
