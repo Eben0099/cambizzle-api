@@ -94,7 +94,7 @@ class AdsController extends BaseApiController
 
         } catch (\Exception $e) {
             log_message('error', '[API] AdsController getCreationData: ' . $e->getMessage());
-            return $this->failServerError('Une erreur interne est survenue lors de la récupération des données.');
+            return $this->failServerError('An error occurred while loading form data. Please try again.');
         }
     }
 
@@ -108,7 +108,7 @@ class AdsController extends BaseApiController
         try {
             $subcategory = $subcategoryModel->select('id')->where('slug', $subcategorySlug)->where('is_active', 1)->first();
             if (!$subcategory) {
-                return $this->failNotFound('Aucune sous-catégorie active trouvée pour ce slug.');
+                return $this->failNotFound('No active subcategory found with this identifier.');
             }
             $subcategoryId = $subcategory['id'];
 
@@ -150,7 +150,7 @@ class AdsController extends BaseApiController
 
         } catch (\Exception $e) {
             log_message('error', '[API] AdsController getSubcategoryFields Slug: ' . $e->getMessage());
-            return $this->failServerError('Une erreur interne est survenue.');
+            return $this->failServerError('An error occurred while loading fields. Please try again.');
         }
     }
 
@@ -222,7 +222,7 @@ class AdsController extends BaseApiController
 
         if (!$userId) {
             log_message('error', '[API] AdsController create: Utilisateur non authentifié');
-            return $this->failUnauthorized('Utilisateur non authentifié ou identifiant manquant.');
+            return $this->failUnauthorized('You must be logged in to create an ad.');
         }
 
         // 3. ANALYSE DES DONNÉES REÇUES
@@ -299,7 +299,7 @@ class AdsController extends BaseApiController
             $promotionPackModel = new \App\Models\PromotionPackModel();
             $boostPlan = $promotionPackModel->find($allData['boost_plan_id']);
             if (!$boostPlan) {
-                return $this->failValidationErrors(['boost_plan_id' => 'Plan de boost invalide']);
+                return $this->failValidationErrors(['boost_plan_id' => 'Invalid boost plan selected']);
             }
             $isPaidBoost = ($boostPlan['price'] > 0);
         }
@@ -668,7 +668,7 @@ class AdsController extends BaseApiController
                         log_message('error', '[API] AdsController create: Erreur initiation paiement: ' . $e->getMessage());
                         // En cas d'erreur de paiement, on annule la création de l'annonce
                         $db->transRollback();
-                        return $this->failServerError('Erreur lors de l\'initiation du paiement: ' . $e->getMessage());
+                        return $this->failServerError('Payment initialization failed: ' . $e->getMessage());
                     }
                 } else {
                     // Boost gratuit : appliquer directement
@@ -695,7 +695,7 @@ class AdsController extends BaseApiController
                 log_message('error', '[API] AdsController create: Retour réponse PAYMENT_PENDING');
                 return $this->respond([
                     'status' => 'payment_pending',
-                    'message' => 'Annonce sauvegardée comme brouillon. Veuillez finaliser le paiement.',
+                    'message' => 'Ad saved as draft. Please complete the payment to publish your ad.',
                     'ad_id' => $newAdId,
                     'payment_info' => $paymentInfo
                 ], 200);
@@ -703,7 +703,7 @@ class AdsController extends BaseApiController
                 log_message('error', '[API] AdsController create: Retour réponse SUCCESS - isPaidBoost: ' . ($isPaidBoost ? 'true' : 'false') . ', paymentInfo: ' . ($paymentInfo ? 'present' : 'null'));
                 $responseData = [
                     'status' => 'success',
-                    'message' => 'Annonce créée avec succès.',
+                    'message' => 'Ad created successfully.',
                     'ad' => $newAd,
                     'stats' => [
                         'photos_processed' => $photosProcessed,
@@ -719,7 +719,7 @@ class AdsController extends BaseApiController
             $db->transRollback();
             log_message('error', '[API] AdsController create: ❌ Exception générale: ' . $e->getMessage());
             log_message('error', '[API] AdsController create: Trace: ' . $e->getTraceAsString());
-            return $this->failServerError('Une erreur est survenue lors de la création de l\'annonce: ' . $e->getMessage());
+            return $this->failServerError('Failed to create ad: ' . $e->getMessage());
         }
     }
 
@@ -736,7 +736,7 @@ class AdsController extends BaseApiController
             $ad = $adModel->find($adId);
 
             if (!$ad) {
-                return $this->failNotFound('Annonce introuvable');
+                return $this->failNotFound('Ad not found');
             }
 
             // Vérifier si l'utilisateur est propriétaire de l'annonce
@@ -749,7 +749,7 @@ class AdsController extends BaseApiController
             }
 
             if (!$userId || $ad['user_id'] != $userId) {
-                return $this->failForbidden('Accès non autorisé à cette annonce');
+                return $this->failForbidden('You do not have permission to view this ad\'s status');
             }
 
             // Si l'annonce est déjà publiée, retourner le statut normal
@@ -757,7 +757,7 @@ class AdsController extends BaseApiController
                 return $this->respond([
                     'status' => 'published',
                     'moderation_status' => $ad['moderation_status'],
-                    'message' => 'Annonce déjà publiée'
+                    'message' => 'Ad already published'
                 ], 200);
             }
 
@@ -770,7 +770,7 @@ class AdsController extends BaseApiController
                 return $this->respond([
                     'status' => 'published',
                     'moderation_status' => $ad['moderation_status'],
-                    'message' => 'Annonce publiée'
+                    'message' => 'Ad published'
                 ], 200);
             }
 
@@ -786,26 +786,41 @@ class AdsController extends BaseApiController
 
                 return $this->respond([
                     'status' => 'payment_success',
-                    'message' => 'Paiement confirmé et annonce publiée.',
+                    'message' => 'Payment confirmed and ad published successfully.',
                     'moderation_status' => $ad['moderation_status']
                 ], 200);
             } elseif ($result['status'] === 'failed') {
                 return $this->respond([
                     'status' => 'payment_failed',
-                    'message' => 'Le paiement a échoué.'
+                    'message' => 'Payment failed. Please try again.'
                 ], 200);
             } else {
                 // Toujours en attente
                 return $this->respond([
                     'status' => 'payment_pending',
-                    'message' => 'Paiement toujours en attente.'
+                    'message' => 'Payment is still pending.'
                 ], 200);
             }
 
         } catch (\Exception $e) {
             log_message('error', '[API] AdsController getStatus: Erreur: ' . $e->getMessage());
-            return $this->failServerError('Erreur lors de la vérification du statut');
+            return $this->failServerError('Failed to check payment status. Please try again.');
         }
+    }
+
+    /**
+     * Nettoyer automatiquement les boosts expirés
+     * Réinitialise is_boosted = 0 pour les annonces dont boost_end < NOW()
+     */
+    private function cleanExpiredBoosts()
+    {
+        $db = \Config\Database::connect();
+        $db->query("
+            UPDATE ads 
+            SET is_boosted = 0 
+            WHERE is_boosted = 1 
+            AND boost_end < NOW()
+        ");
     }
 
     public function index()
@@ -814,6 +829,9 @@ class AdsController extends BaseApiController
         $request = $this->request;
 
         try {
+            // Nettoyer les boosts expirés avant de lister
+            $this->cleanExpiredBoosts();
+
             // Paramètres de pagination
             $page = (int) ($request->getGet('page') ?? 1);
             $perPage = (int) ($request->getGet('per_page') ?? 1000);
@@ -977,8 +995,10 @@ class AdsController extends BaseApiController
 
             // Application du tri avec priorité pour les annonces boostées
             // 1. Annonces boostées actives en premier (is_boosted = 1 ET boost_end >= NOW())
-            // 2. Ensuite le tri demandé par l'utilisateur
+            // 2. Pour les annonces boostées : tri par date (plus récentes d'abord)
+            // 3. Pour les annonces non boostées : tri demandé par l'utilisateur
             $ads = $query->orderBy('CASE WHEN ads.is_boosted = 1 AND ads.boost_end >= NOW() THEN 0 ELSE 1 END', 'ASC')
+                        ->orderBy('CASE WHEN ads.is_boosted = 1 AND ads.boost_end >= NOW() THEN ads.created_at ELSE NULL END', 'DESC')
                         ->orderBy('ads.' . $sortBy, $sortOrder)
                         ->limit($perPage, $offset)
                         ->findAll();
@@ -1029,7 +1049,7 @@ class AdsController extends BaseApiController
 
         } catch (\Exception $e) {
             log_message('error', '[API] AdsController index: ' . $e->getMessage());
-            return $this->failServerError('Une erreur est survenue lors de la récupération des annonces.');
+            return $this->failServerError('Failed to load ads. Please try again.');
         }
     }
 
@@ -1059,7 +1079,7 @@ class AdsController extends BaseApiController
                          ->first();
 
             if (!$ad) {
-                return $this->failNotFound('Annonce non trouvée ou supprimée.');
+                return $this->failNotFound('Ad not found or has been deleted.');
             }
 
             // Récupération des informations complètes de l'utilisateur
@@ -1109,7 +1129,7 @@ class AdsController extends BaseApiController
 
         } catch (\Exception $e) {
             log_message('error', '[API] AdsController show: ' . $e->getMessage());
-            return $this->failServerError('Une erreur est survenue lors de la récupération de l\'annonce.');
+            return $this->failServerError('An error occurred while loading the ad. Please try again.');
         }
     }
 
@@ -1124,7 +1144,7 @@ class AdsController extends BaseApiController
             $existingAd = $adModel->where($whereCondition)->first();
 
             if (!$existingAd) {
-                return $this->failNotFound('Annonce non trouvée.');
+                return $this->failNotFound('Ad not found.');
             }
 
             // Vérifier les permissions (seul le propriétaire peut modifier)
@@ -1138,11 +1158,11 @@ class AdsController extends BaseApiController
             }
 
             if (!$userId) {
-                return $this->failUnauthorized('Utilisateur non authentifié.');
+                return $this->failUnauthorized('You must be logged in to update this ad.');
             }
 
             if ($existingAd['user_id'] != $userId) {
-                return $this->failForbidden('Vous n\'avez pas les permissions pour modifier cette annonce.');
+                return $this->failForbidden('You do not have permission to edit this ad. Only the ad owner can edit it.');
             }
 
             // Récupérer les données
@@ -1281,7 +1301,7 @@ class AdsController extends BaseApiController
                 $result = $adModel->update($existingAd['id'], $updateData);
                 if (!$result) {
                     $db->transRollback();
-                    return $this->failServerError('Échec de la mise à jour de l\'annonce.');
+                    return $this->failServerError('Failed to update the ad. Please try again.');
                 }
             }
 
@@ -1517,12 +1537,12 @@ class AdsController extends BaseApiController
 
             return $this->respondUpdated([
                 'ad' => $updatedAd,
-                'message' => 'Annonce mise à jour avec succès.'
+                'message' => 'Ad updated successfully.'
             ]);
 
         } catch (\Exception $e) {
             log_message('error', '[API] AdsController update: ' . $e->getMessage());
-            return $this->failServerError('Une erreur est survenue lors de la mise à jour de l\'annonce.');
+            return $this->failServerError('An error occurred while updating the ad. Please try again.');
         }
     }
 
@@ -1537,7 +1557,7 @@ class AdsController extends BaseApiController
             $ad = $adModel->where($whereCondition)->first();
 
             if (!$ad) {
-                return $this->failNotFound('Annonce non trouvée.');
+                return $this->failNotFound('Ad not found. The ad may have already been deleted or does not exist.');
             }
 
             // Vérifier les permissions (seul le propriétaire peut supprimer)
@@ -1551,11 +1571,11 @@ class AdsController extends BaseApiController
             }
 
             if (!$userId) {
-                return $this->failUnauthorized('Utilisateur non authentifié.');
+                return $this->failUnauthorized('You must be logged in to delete an ad.');
             }
 
             if ($ad['user_id'] != $userId) {
-                return $this->failForbidden('Vous n\'avez pas les permissions pour supprimer cette annonce.');
+                return $this->failForbidden('You do not have permission to delete this ad. Only the ad owner can delete it.');
             }
 
             // Démarrer la transaction
@@ -1570,7 +1590,7 @@ class AdsController extends BaseApiController
 
             if (!$result) {
                 $db->transRollback();
-                return $this->failServerError('Échec de la suppression de l\'annonce.');
+                return $this->failServerError('Failed to delete ad. Please try again.');
             }
 
             $db->transCommit();
@@ -1578,12 +1598,12 @@ class AdsController extends BaseApiController
             log_message('error', '[API] AdsController delete: ==== FIN SUPPRESSION ANNONCE ====');
 
             return $this->respondDeleted([
-                'message' => 'Annonce supprimée avec succès.'
+                'message' => 'Ad deleted successfully.'
             ]);
 
         } catch (\Exception $e) {
             log_message('error', '[API] AdsController delete: ' . $e->getMessage());
-            return $this->failServerError('Une erreur est survenue lors de la suppression de l\'annonce.');
+            return $this->failServerError('An error occurred while deleting the ad. Please try again.');
         }
     }
 
@@ -1598,7 +1618,7 @@ class AdsController extends BaseApiController
 
             // Vérifier que l'ID est numérique
             if (!is_numeric($id)) {
-                return $this->failNotFound('ID d\'annonce invalide.');
+                return $this->failNotFound('Invalid ad ID provided.');
             }
 
             // Récupération de l'annonce avec ses relations
@@ -1618,7 +1638,7 @@ class AdsController extends BaseApiController
                          ->first();
 
             if (!$ad) {
-                return $this->failNotFound('Annonce non trouvée ou supprimée.');
+                return $this->failNotFound('Ad not found or has been deleted.');
             }
 
             // Récupération des photos
@@ -1646,7 +1666,7 @@ class AdsController extends BaseApiController
 
         } catch (\Exception $e) {
             log_message('error', '[API] AdsController getById: ' . $e->getMessage());
-            return $this->failServerError('Une erreur est survenue lors de la récupération de l\'annonce.');
+            return $this->failServerError('An error occurred while loading the ad. Please try again.');
         }
     }
 
@@ -1660,6 +1680,9 @@ class AdsController extends BaseApiController
         $request = $this->request;
 
         try {
+            // Nettoyer les boosts expirés avant de lister
+            $this->cleanExpiredBoosts();
+
             // Vérifier que l'userId est numérique
             if (!is_numeric($userId)) {
                 return $this->failNotFound('ID utilisateur invalide.');
@@ -1801,7 +1824,10 @@ class AdsController extends BaseApiController
             $total = $totalQuery->countAllResults(false);
 
             // Application du tri et de la pagination
-            $ads = $query->orderBy('ads.' . $sortBy, $sortOrder)
+            // Tri: annonces boostées d'abord (par date), puis non-boostées
+            $ads = $query->orderBy('CASE WHEN ads.is_boosted = 1 AND ads.boost_end >= NOW() THEN 0 ELSE 1 END', 'ASC')
+                        ->orderBy('CASE WHEN ads.is_boosted = 1 AND ads.boost_end >= NOW() THEN ads.created_at ELSE NULL END', 'DESC')
+                        ->orderBy('ads.' . $sortBy, $sortOrder)
                         ->limit($perPage, $offset)
                         ->findAll();
 
@@ -1852,7 +1878,7 @@ class AdsController extends BaseApiController
 
         } catch (\Exception $e) {
             log_message('error', '[API] AdsController getByUser: ' . $e->getMessage());
-            return $this->failServerError('Une erreur est survenue lors de la récupération des annonces de l\'utilisateur.');
+            return $this->failServerError('Failed to load user\'s ads. Please try again.');
         }
     }
 
@@ -1866,16 +1892,19 @@ class AdsController extends BaseApiController
         $request = $this->request;
 
         try {
+            // Nettoyer les boosts expirés avant de lister
+            $this->cleanExpiredBoosts();
+
             // Vérifier que le categoryId est numérique
             if (!is_numeric($categoryId)) {
-                return $this->failNotFound('ID de catégorie invalide.');
+                return $this->failNotFound('Invalid category ID provided.');
             }
 
             // Vérifier que la catégorie existe
             $categoryModel = new CategoryModel();
             $category = $categoryModel->find($categoryId);
             if (!$category || !$category['is_active']) {
-                return $this->failNotFound('Catégorie non trouvée ou inactive.');
+                return $this->failNotFound('Category not found or is currently inactive.');
             }
 
             // Paramètres de pagination
@@ -2035,8 +2064,10 @@ class AdsController extends BaseApiController
 
             // Application du tri avec priorité pour les annonces boostées (getByCategory)
             // 1. Annonces boostées actives en premier (is_boosted = 1 ET boost_end >= NOW())
-            // 2. Ensuite le tri demandé par l'utilisateur
+            // 2. Pour les annonces boostées : tri par date (plus récentes d'abord)
+            // 3. Pour les annonces non boostées : tri demandé par l'utilisateur
             $ads = $query->orderBy('CASE WHEN ads.is_boosted = 1 AND ads.boost_end >= NOW() THEN 0 ELSE 1 END', 'ASC')
+                        ->orderBy('CASE WHEN ads.is_boosted = 1 AND ads.boost_end >= NOW() THEN ads.created_at ELSE NULL END', 'DESC')
                         ->orderBy('ads.' . $sortBy, $sortOrder)
                         ->limit($perPage, $offset)
                         ->findAll();
@@ -2088,7 +2119,7 @@ class AdsController extends BaseApiController
 
         } catch (\Exception $e) {
             log_message('error', '[API] AdsController getByCategory: ' . $e->getMessage());
-            return $this->failServerError('Une erreur est survenue lors de la récupération des annonces de la catégorie.');
+            return $this->failServerError('Failed to load ads for this category. Please try again.');
         }
     }
 
@@ -2102,6 +2133,9 @@ class AdsController extends BaseApiController
         $request = $this->request;
 
         try {
+            // Nettoyer les boosts expirés avant de lister
+            $this->cleanExpiredBoosts();
+
             $subcategoryModel = new SubcategoryModel();
             if (is_numeric($subcategoryId)) {
                 $subcategory = $subcategoryModel->find($subcategoryId);
@@ -2115,7 +2149,7 @@ class AdsController extends BaseApiController
             
             if (!$subcategory || !$subcategory['is_active']) {
                 log_message('error', '[API] AdsController getBySubcategory: Sous-catégorie non trouvée ou inactive');
-                return $this->failNotFound('Sous-catégorie non trouvée ou inactive.');
+                return $this->failNotFound('Subcategory not found or is currently inactive.');
             }
             $subcategoryId = $subcategory['id'];
 
@@ -2168,7 +2202,7 @@ class AdsController extends BaseApiController
 	            $existingAd = $adModel->where($whereCondition)->first();
 
 	            if (!$existingAd) {
-	                return $this->failNotFound('Annonce non trouvée.');
+	                return $this->failNotFound('Ad not found. The ad may have been deleted or does not exist.');
 	            }
 
 	            // 2) Authentification et permission
@@ -2189,11 +2223,11 @@ class AdsController extends BaseApiController
 	            }
 
 	            if (!$userId) {
-	                return $this->failUnauthorized('Utilisateur non authentifié.');
+	                return $this->failUnauthorized('You must be logged in to edit an ad.');
 	            }
 
 	            if ((int) $existingAd['user_id'] !== (int) $userId) {
-	                return $this->failForbidden('Vous n\'avez pas les permissions pour modifier cette annonce.');
+	                return $this->failForbidden('You do not have permission to edit this ad. Only the ad owner can edit it.');
 	            }
 
 	            // 3) Récupérer toutes les données (POST, JSON, RAW) + fichiers
@@ -2377,7 +2411,7 @@ class AdsController extends BaseApiController
 	                $result = $adModel->update($existingAd['id'], $updateData);
 	                if (!$result) {
 	                    $db->transRollback();
-	                    return $this->failServerError('Échec de la mise à jour de l\'annonce.');
+	                    return $this->failServerError('Failed to update the ad. Please try again.');
 	                }
 	            }
 
@@ -2432,12 +2466,12 @@ class AdsController extends BaseApiController
 	            log_message('error', '[API] AdsController updateAd: ==== FIN MISE À JOUR ANNONCE ====');
 	            return $this->respondUpdated([
 	                'ad' => $updatedAd,
-	                'message' => 'Annonce mise à jour avec succès.'
+	                'message' => 'Ad updated successfully.'
 	            ]);
 
 	        } catch (\Exception $e) {
 	            log_message('error', '[API] AdsController updateAd: ' . $e->getMessage());
-	            return $this->failServerError('Une erreur est survenue lors de la mise à jour de l\'annonce.');
+	            return $this->failServerError('An error occurred while updating the ad. Please try again.');
 	        }
 	    }*/
                 }
@@ -2555,8 +2589,10 @@ class AdsController extends BaseApiController
 
             // Application du tri avec priorité pour les annonces boostées (getBySubcategory)
             // 1. Annonces boostées actives en premier (is_boosted = 1 ET boost_end >= NOW())
-            // 2. Ensuite le tri demandé par l'utilisateur
+            // 2. Pour les annonces boostées : tri par date (plus récentes d'abord)
+            // 3. Pour les annonces non boostées : tri demandé par l'utilisateur
             $ads = $query->orderBy('CASE WHEN ads.is_boosted = 1 AND ads.boost_end >= NOW() THEN 0 ELSE 1 END', 'ASC')
+                        ->orderBy('CASE WHEN ads.is_boosted = 1 AND ads.boost_end >= NOW() THEN ads.created_at ELSE NULL END', 'DESC')
                         ->orderBy('ads.' . $sortBy, $sortOrder)
                         ->limit($perPage, $offset)
                         ->findAll();
@@ -2608,7 +2644,7 @@ class AdsController extends BaseApiController
 
         } catch (\Exception $e) {
             log_message('error', '[API] AdsController getBySubcategory: ' . $e->getMessage());
-            return $this->failServerError('Une erreur est survenue lors de la récupération des annonces de la sous-catégorie.');
+            return $this->failServerError('Failed to load ads for this subcategory. Please try again.');
         }
     }
 
@@ -2683,7 +2719,7 @@ class AdsController extends BaseApiController
 
         } catch (\Exception $e) {
             log_message('error', '[API] AdsController getUserViewsStats: ' . $e->getMessage());
-            return $this->failServerError('Une erreur est survenue lors de la récupération des statistiques de vues.');
+            return $this->failServerError('Failed to load view statistics. Please try again.');
         }
     }
 }

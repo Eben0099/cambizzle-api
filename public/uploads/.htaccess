@@ -1,0 +1,45 @@
+# Permettre l'accès aux images et fichiers uploadés
+<Files "*">
+    # Autoriser les images
+    <FilesMatch "\.(jpg|jpeg|png|gif|webp)$">
+        Order allow,deny
+        Allow from all
+    </FilesMatch>
+    
+    # Autoriser les documents PDF (pour les documents d'identité)
+    <FilesMatch "\.pdf$">
+        Order allow,deny
+        Allow from all
+    </FilesMatch>
+    
+    # Bloquer tous les autres types de fichiers par sécurité
+    Order deny,allow
+    Deny from all
+</Files>
+
+# Désactiver l'exécution de scripts
+Options -ExecCGI
+AddHandler cgi-script .php .pl .py .jsp .asp .sh .cgi
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

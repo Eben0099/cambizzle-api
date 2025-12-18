@@ -25,25 +25,25 @@ class AuthService
      */
     public function register(array $userData): array
     {
-        // Validation des données avec messages explicites
+        // Data validation with explicit messages
         if (empty($userData['phone'])) {
-            throw new \InvalidArgumentException('Le numéro de téléphone est obligatoire');
+            throw new \InvalidArgumentException('Phone number is required');
         }
         if (empty($userData['password'])) {
-            throw new \InvalidArgumentException('Le mot de passe est obligatoire');
+            throw new \InvalidArgumentException('Password is required');
         }
 
-        // Vérifier si l'utilisateur existe déjà avec messages plus explicites
+        // Check if user already exists with more explicit messages
         if (!empty($userData['email'])) {
             $existingEmail = $this->model->where('email', $userData['email'])->first();
             if ($existingEmail) {
-                throw new \RuntimeException('Un compte avec cette adresse email existe déjà');
+                throw new \RuntimeException('An account with this email address already exists');
             }
         }
         
         $existingPhone = $this->model->where('phone', $userData['phone'])->first();
         if ($existingPhone) {
-            throw new \RuntimeException('Un compte avec ce numéro de téléphone existe déjà');
+            throw new \RuntimeException('An account with this phone number already exists');
         }
 
         // Nettoyer et préparer les données
@@ -82,7 +82,7 @@ class AuthService
             $referralCodeService = service('referralCodeService');
             $validReferral = $referralCodeService->validateReferralCode($userData['referral_code']);
             if (!$validReferral) {
-                throw new \RuntimeException('Code de parrainage invalide ou expiré');
+                throw new \RuntimeException('Invalid or expired referral code');
             }
             // On incrémente current_uses
             $referralCodeService->incrementUses($validReferral['id']);
@@ -149,7 +149,7 @@ class AuthService
             // Lier le compte Google à l'utilisateur existant
             $this->model->update($userByEmail['id_user'], [
                 'google_id' => $googleData['id'],
-                'is_verified' => false
+                'is_verified' => true // Email vérifié par Google
             ]);
 
             $updatedUser = $this->model->find($userByEmail['id_user']);
@@ -167,7 +167,7 @@ class AuthService
             'last_name' => $googleData['family_name'] ?? '',
             'email' => $googleData['email'],
             'google_id' => $googleData['id'],
-            'is_verified' => false,
+            'is_verified' => true, // Email vérifié par Google
             'role_id' => 2, // Vendeur par défaut
             'photo_url' => $googleData['picture'] ?? null
         ];
@@ -247,13 +247,19 @@ class AuthService
     {
         if ($loginType === 'phone') {
             $user = $this->model->where('phone', $loginValue)->first();
-            if (!$user || !password_verify($password, $user['password_hash'])) {
-                throw new \RuntimeException('Numéro de téléphone ou mot de passe incorrect');
+            if (!$user) {
+                throw new \RuntimeException('ACCOUNT_NOT_FOUND:No account exists with this phone number. Please create an account.');
+            }
+            if (!password_verify($password, $user['password_hash'])) {
+                throw new \RuntimeException('INVALID_PASSWORD:Incorrect password. Please try again.');
             }
         } else {
             $user = $this->model->where('email', $loginValue)->first();
-            if (!$user || !password_verify($password, $user['password_hash'])) {
-                throw new \RuntimeException('Email ou mot de passe incorrect');
+            if (!$user) {
+                throw new \RuntimeException('ACCOUNT_NOT_FOUND:No account exists with this email address. Please create an account.');
+            }
+            if (!password_verify($password, $user['password_hash'])) {
+                throw new \RuntimeException('INVALID_PASSWORD:Incorrect password. Please try again.');
             }
         }
         $token = $this->generateToken($user);
@@ -342,20 +348,20 @@ class AuthService
      */
     public function resetPasswordByPhone(string $phone, string $newPassword): array
     {
-        // Validation basique
+        // Basic validation
         if (empty($phone) || empty($newPassword)) {
-            throw new \InvalidArgumentException('Numéro de téléphone et mot de passe requis');
+            throw new \InvalidArgumentException('Phone number and password required');
         }
 
         if (strlen($newPassword) < 6) {
-            throw new \InvalidArgumentException('Le mot de passe doit contenir au moins 6 caractères');
+            throw new \InvalidArgumentException('Password must contain at least 6 characters');
         }
 
-        // Trouver l'utilisateur avec ce numéro de téléphone
+        // Find user with this phone number
         $user = $this->model->where('phone', $phone)->first();
         
         if (!$user) {
-            throw new \RuntimeException('Aucun compte trouvé avec ce numéro de téléphone');
+            throw new \RuntimeException('No account found with this phone number');
         }
 
         // Mettre à jour le mot de passe
@@ -368,7 +374,7 @@ class AuthService
         log_message('info', "Password reset successful for user {$user['id_user']} via phone reset");
 
         return [
-            'message' => 'Mot de passe réinitialisé avec succès',
+            'message' => 'Password reset successfully',
             'user' => $updatedUser
         ];
     }

@@ -90,7 +90,7 @@ class AdminReferentialController extends BaseApiController
                 $uploadResult = $uploadService->upload('icon', 'uploads/categories', false);
                 if (!empty($uploadResult['path'])) {
                     $filename = basename($uploadResult['path']);
-                    $data['icon_path'] = rtrim(base_url(), '/') . '/api/uploads/categories/' . $filename;
+                    $data['icon_path'] = '/uploads/categories/' . $filename;
                 }
             }
 
@@ -151,7 +151,7 @@ class AdminReferentialController extends BaseApiController
                 $uploadResult = $uploadService->upload('icon', 'uploads/categories', false);
                 if (!empty($uploadResult['path'])) {
                     $filename = basename($uploadResult['path']);
-                    $data['icon_path'] = rtrim(base_url(), '/') . '/api/uploads/categories/' . $filename;
+                    $data['icon_path'] = '/uploads/categories/' . $filename;
                 }
             }
 
@@ -296,7 +296,7 @@ class AdminReferentialController extends BaseApiController
                 $uploadResult = $uploadService->upload('icon', 'uploads/subcategories', false);
                 if (!empty($uploadResult['path'])) {
                     $filename = basename($uploadResult['path']);
-                    $data['icon_path'] = rtrim(base_url(), '/') . '/api/uploads/subcategories/' . $filename;
+                    $data['icon_path'] = '/uploads/subcategories/' . $filename;
                 }
             }
 
@@ -361,7 +361,7 @@ class AdminReferentialController extends BaseApiController
                 $uploadResult = $uploadService->upload('icon', 'uploads/subcategories', false);
                 if (!empty($uploadResult['path'])) {
                     $filename = basename($uploadResult['path']);
-                    $data['icon_path'] = rtrim(base_url(), '/') . '/api/uploads/subcategories/' . $filename;
+                    $data['icon_path'] = '/uploads/subcategories/' . $filename;
                 }
             }
 

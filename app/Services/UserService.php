@@ -69,10 +69,59 @@ class UserService
         // Log des données reçues pour debug
         log_message('info', 'UserService::updateUser - Received data: ' . json_encode($data));
         
-        // Ne pas permettre la modification de l'email via cette méthode (pour l'instant)
-        if (isset($data['email'])) {
-            log_message('info', 'UserService::updateUser - Email field removed from update data');
-            unset($data['email']);
+        // Récupérer l'utilisateur actuel pour les vérifications
+        $currentUser = $this->find($id);
+        if (!$currentUser) {
+            $this->errors = ['user' => 'User not found'];
+            return false;
+        }
+        
+        // Gestion du changement de mot de passe
+        if (isset($data['password']) || isset($data['new_password'])) {
+            $newPassword = $data['password'] ?? $data['new_password'];
+            $currentPassword = $data['current_password'] ?? null;
+            
+            // Vérifier que le mot de passe actuel est fourni
+            if (!$currentPassword) {
+                $this->errors = ['current_password' => 'Current password is required to change your password'];
+                log_message('error', 'UserService::updateUser - Current password not provided');
+                return false;
+            }
+            
+            // Vérifier que le mot de passe actuel est correct
+            if (!password_verify($currentPassword, $currentUser['password_hash'])) {
+                $this->errors = ['current_password' => 'Current password is incorrect'];
+                log_message('error', 'UserService::updateUser - Current password verification failed');
+                return false;
+            }
+            
+            // Valider la longueur du nouveau mot de passe
+            if (strlen($newPassword) < 6) {
+                $this->errors = ['password' => 'Password must be at least 6 characters long'];
+                log_message('error', 'UserService::updateUser - New password too short');
+                return false;
+            }
+            
+            // Hasher le nouveau mot de passe
+            $data['password_hash'] = password_hash($newPassword, PASSWORD_DEFAULT);
+            log_message('info', 'UserService::updateUser - Password will be updated');
+            
+            // Nettoyer les champs temporaires
+            unset($data['password'], $data['new_password'], $data['current_password']);
+        }
+        
+        // Gestion du changement d'email
+        if (isset($data['email']) && $data['email'] !== $currentUser['email']) {
+            // Vérifier que l'email n'est pas déjà utilisé
+            $existingUser = $this->model->where('email', $data['email'])
+                                        ->where('id_user !=', $id)
+                                        ->first();
+            if ($existingUser) {
+                $this->errors = ['email' => 'This email address is already in use by another account'];
+                log_message('error', 'UserService::updateUser - Email already in use: ' . $data['email']);
+                return false;
+            }
+            log_message('info', 'UserService::updateUser - Email will be updated to: ' . $data['email']);
         }
         
         // Ne pas permettre la modification du slug directement (il est généré automatiquement)
@@ -159,6 +208,11 @@ class UserService
         log_message('info', 'UserService::updateUser - Data to update: ' . json_encode($data));
 
         try {
+            // Désactiver temporairement la validation stricte pour permettre les mises à jour partielles
+            $this->model->setValidationRule('first_name', 'if_exist|permit_empty|min_length[2]|max_length[100]');
+            $this->model->setValidationRule('last_name', 'if_exist|permit_empty|min_length[2]|max_length[100]');
+            $this->model->setValidationRule('phone', 'if_exist|permit_empty|is_unique[users.phone,id_user,{id_user}]');
+            
             $result = $this->update($id, $data);
             if (!$result) {
                 $this->errors = $this->model->errors();

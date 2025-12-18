@@ -209,10 +209,15 @@ class AdModel extends Model
             $builder->where('price <=', $filters['max_price']);
         }
 
-        // Tri
+        // Tri avec priorité pour les annonces boostées
+        // 1. Annonces boostées actives en premier
+        // 2. Pour les boostées : tri par date (plus récentes d'abord)
+        // 3. Pour les non-boostées : tri demandé
         $sortBy = $filters['sort_by'] ?? 'created_at';
         $sortOrder = $filters['sort_order'] ?? 'DESC';
-        $builder->orderBy($sortBy, $sortOrder);
+        $builder->orderBy('CASE WHEN is_boosted = 1 AND boost_end >= NOW() THEN 0 ELSE 1 END', 'ASC')
+                ->orderBy('CASE WHEN is_boosted = 1 AND boost_end >= NOW() THEN created_at ELSE NULL END', 'DESC')
+                ->orderBy($sortBy, $sortOrder);
 
         // Pagination
         $offset = ($page - 1) * $perPage;

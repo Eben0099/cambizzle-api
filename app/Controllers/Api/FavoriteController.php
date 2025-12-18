@@ -5,6 +5,7 @@ namespace App\Controllers\Api;
 use App\Controllers\Api\BaseApiController;
 use App\Services\FavoriteService;
 use CodeIgniter\API\ResponseTrait;
+use Config\Services;
 
 class FavoriteController extends BaseApiController
 {
@@ -23,7 +24,7 @@ class FavoriteController extends BaseApiController
 
     public function __construct()
     {
-        $this->service = service('favoriteService');
+        $this->service = Services::favoriteService();
     }
 
     public function toggleFavorite(int $adId)

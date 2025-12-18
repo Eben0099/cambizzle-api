@@ -441,7 +441,21 @@ class UserController extends BaseApiController
 
             // Filtrer et nettoyer les données avec une approche plus permissive
             $filteredData = [];
+            // Champs qui existent réellement dans la table users
+            $allowedFields = [
+                'first_name', 'last_name', 'phone', 'email', 'photo_url',
+                'password', 'new_password', 'current_password',
+                'identity_document_type', 'identity_document_number',
+                'photo', 'avatar', 'identity_document'
+            ];
+            
             foreach ($data as $key => $value) {
+                // Ignorer les champs non autorisés
+                if (!in_array($key, $allowedFields)) {
+                    log_message('info', "UserController::updateMe - Ignoring field '$key' (not in users table)");
+                    continue;
+                }
+                
                 // Garder les fichiers uploadés
                 if (in_array($key, ['photo', 'avatar', 'identity_document']) &&
                     $value instanceof \CodeIgniter\HTTP\Files\UploadedFile) {
@@ -449,15 +463,15 @@ class UserController extends BaseApiController
                     continue;
                 }
 
-                // Approche plus permissive pour les valeurs
-                if ($value !== null && $value !== '' && $value !== 'null' && $value !== 'undefined' && $value !== false) {
+                // Approche plus permissive pour les valeurs - accepter même les chaînes vides
+                if ($value !== null && $value !== 'null' && $value !== 'undefined') {
                     // Convertir les chaînes booléennes
                     if ($value === 'true') {
                         $filteredData[$key] = true;
                     } elseif ($value === 'false') {
                         $filteredData[$key] = false;
                     } else {
-                        $filteredData[$key] = $value;
+                        $filteredData[$key] = $value; // Accepter même les chaînes vides
                     }
                 } elseif ($value === false || $value === 0 || $value === '0') {
                     // Garder les valeurs falsy mais valides
@@ -468,9 +482,14 @@ class UserController extends BaseApiController
             // Si toujours pas de données, essayer une approche encore plus permissive
             if (empty($filteredData)) {
                 log_message('warning', 'UserController::updateMe - No data after filtering, trying permissive approach');
+                $allowedFields = [
+                    'first_name', 'last_name', 'phone', 'email', 'photo_url',
+                    'password', 'new_password', 'current_password',
+                    'identity_document_type', 'identity_document_number'
+                ];
                 foreach ($data as $key => $value) {
-                    // Garder tout sauf null et chaînes vides
-                    if ($value !== null && $value !== '') {
+                    // Garder tout sauf null, même les chaînes vides si c'est un champ autorisé
+                    if (in_array($key, $allowedFields) && $value !== null && $value !== 'null' && $value !== 'undefined') {
                         $filteredData[$key] = $value;
                     }
                 }

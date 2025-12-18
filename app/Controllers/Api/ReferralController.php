@@ -29,7 +29,7 @@ class ReferralController extends BaseApiController
             // Vérifier l'authentification
             $token = $this->request->getHeaderLine('Authorization');
             if (!$token) {
-                return $this->unauthorized('Token d\'authentification requis');
+                return $this->unauthorized('Authentication token required');
             }
             $payload = $this->authService->validateToken(str_replace('Bearer ', '', $token));
             $userId = $payload->user_id;
@@ -51,7 +51,7 @@ class ReferralController extends BaseApiController
             }
 
             // On retourne tous les codes, pas seulement le premier
-            return $this->success(array_values($codes), 'Codes de parrainage et filleuls récupérés avec succès');
+            return $this->success(array_values($codes), 'Referral codes and referrals retrieved successfully');
         } catch (\Exception $e) {
             return $this->serverError($e->getMessage());
         }
@@ -66,7 +66,7 @@ class ReferralController extends BaseApiController
             // Vérifier l'authentification
             $token = $this->request->getHeaderLine('Authorization');
             if (!$token) {
-                return $this->unauthorized('Token d\'authentification requis');
+                return $this->unauthorized('Authentication token required');
             }
 
             $payload = $this->authService->validateToken(str_replace('Bearer ', '', $token));
@@ -106,12 +106,12 @@ class ReferralController extends BaseApiController
 
             if (!$codeId) {
                 $errors = $this->referralCodeModel->errors();
-                return $this->validationError($errors ?: ['general' => 'Erreur lors de la création du code de parrainage']);
+                return $this->validationError($errors ?: ['general' => 'Failed to create referral code. Please try again.']);
             }
 
             $code = $this->referralCodeModel->find($codeId);
 
-            return $this->success($code, 'Code de parrainage créé avec succès', 201);
+            return $this->success($code, 'Referral code created successfully', 201);
 
         } catch (\Exception $e) {
             return $this->serverError($e->getMessage());
@@ -127,7 +127,7 @@ class ReferralController extends BaseApiController
             // Vérifier l'authentification
             $token = $this->request->getHeaderLine('Authorization');
             if (!$token) {
-                return $this->unauthorized('Token d\'authentification requis');
+                return $this->unauthorized('Authentication token required');
             }
 
             $payload = $this->authService->validateToken(str_replace('Bearer ', '', $token));
@@ -136,7 +136,7 @@ class ReferralController extends BaseApiController
             $data = $this->request->getJSON(true);
 
             if (empty($data['code'])) {
-                return $this->validationError(['code' => 'Code de parrainage requis']);
+                return $this->validationError(['code' => 'Referral code is required']);
             }
 
             // Trouver le code de parrainage
@@ -146,23 +146,23 @@ class ReferralController extends BaseApiController
                 ->first();
 
             if (!$referralCode) {
-                return $this->validationError(['code' => 'Code de parrainage invalide']);
+                return $this->validationError(['code' => 'Invalid referral code']);
             }
 
             // Vérifier que l'utilisateur n'a pas déjà été parrainé
             if ($this->referralUseModel->isUserAlreadyReferred($userId)) {
-                return $this->validationError(['code' => 'Vous avez déjà utilisé un code de parrainage']);
+                return $this->validationError(['code' => 'You have already used a referral code']);
             }
 
             // Vérifier que l'utilisateur n'est pas le propriétaire du code
             if ($referralCode['user_id'] === $userId) {
-                return $this->validationError(['code' => 'Vous ne pouvez pas utiliser votre propre code']);
+                return $this->validationError(['code' => 'You cannot use your own referral code']);
             }
 
             // Vérifier la limite d'utilisation
             $usesCount = $this->referralUseModel->where('referral_code_id', $referralCode['id'])->countAllResults();
             if ($referralCode['max_uses'] > 0 && $usesCount >= $referralCode['max_uses']) {
-                return $this->validationError(['code' => 'Code de parrainage expiré']);
+                return $this->validationError(['code' => 'Referral code has reached its maximum uses']);
             }
 
             // Créer l'utilisation
@@ -182,7 +182,7 @@ class ReferralController extends BaseApiController
 
             if (!$useId) {
                 $errors = $this->referralUseModel->errors();
-                return $this->validationError($errors ?: ['general' => 'Erreur lors de l\'utilisation du code']);
+                return $this->validationError($errors ?: ['general' => 'Failed to use referral code. Please try again.']);
             }
 
             // Incrémenter le nombre d'utilisations du code
@@ -190,7 +190,7 @@ class ReferralController extends BaseApiController
 
             return $this->success([
                 'bonus_earned' => $referralCode['bonus_amount']
-            ], 'Code de parrainage utilisé avec succès');
+            ], 'Referral code used successfully');
 
         } catch (\Exception $e) {
             return $this->serverError($e->getMessage());
@@ -206,7 +206,7 @@ class ReferralController extends BaseApiController
             // Vérifier l'authentification
             $token = $this->request->getHeaderLine('Authorization');
             if (!$token) {
-                return $this->unauthorized('Token d\'authentification requis');
+                return $this->unauthorized('Authentication token required');
             }
 
             $payload = $this->authService->validateToken(str_replace('Bearer ', '', $token));
@@ -224,7 +224,7 @@ class ReferralController extends BaseApiController
                 'total_bonus_earned' => $totalBonus,
                 'successful_referrals' => $successfulReferrals,
                 'active_codes' => $activeCodes
-            ], 'Statistiques récupérées avec succès');
+            ], 'Statistics retrieved successfully');
 
         } catch (\Exception $e) {
             return $this->serverError($e->getMessage());
