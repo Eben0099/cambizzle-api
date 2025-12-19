@@ -32,7 +32,7 @@ class ReportService
         // Vérifier que l'utilisateur ne signale pas sa propre annonce/utilisateur
         if (isset($data['reported_ad_id'])) {
             $ad = $this->adModel->find($data['reported_ad_id']);
-            if ($ad && $ad->user_id === $reporterId) {
+            if ($ad && (isset($ad['user_id']) ? $ad['user_id'] : null) === $reporterId) {
                 throw new \RuntimeException('Vous ne pouvez pas signaler votre propre annonce');
             }
         }
@@ -78,6 +78,8 @@ class ReportService
         $reportId = $this->reportModel->insert($reportData, true);
 
         if (!$reportId) {
+            // Log des données et des erreurs potentielles
+            log_message('error', '[ReportService][createReport] Echec insert report. Data: ' . json_encode($reportData) . ' | Errors: ' . json_encode($this->reportModel->errors()));
             throw new \RuntimeException('Erreur lors de la création du signalement');
         }
 
@@ -260,12 +262,12 @@ class ReportService
     {
         try {
             $ad = $this->adModel->find($adId);
-            if (!$ad) {
-                log_message('warning', "Ad not found for notification: {$adId}");
+            if (!$ad || !isset($ad['user_id'])) {
+                log_message('warning', "Ad not found for notification or missing user_id: {$adId}");
                 return null;
             }
 
-            $adOwner = $this->userModel->find($ad->user_id);
+            $adOwner = $this->userModel->find($ad['user_id']);
             if (!$adOwner || empty($adOwner['phone'])) {
                 log_message('warning', "Ad owner or phone not found for ad: {$adId}");
                 return null;

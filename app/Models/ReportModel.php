@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Models;
 
 use CodeIgniter\Model;
@@ -196,6 +195,22 @@ class ReportModel extends Model
         }
 
         return $this->update($id, $data);
+    }
+
+    /**
+     * Résoudre un signalement (le marquer comme handled)
+     */
+    public function resolve(int $id, int $adminId, string $notes = null): bool
+    {
+        return $this->handle($id, $adminId, $notes);
+    }
+
+    /**
+     * Rejeter un signalement (le marquer comme rejected)
+     */
+    public function dismiss(int $id, int $adminId, string $notes = null): bool
+    {
+        return $this->reject($id, $adminId, $notes);
     }
 
     /**

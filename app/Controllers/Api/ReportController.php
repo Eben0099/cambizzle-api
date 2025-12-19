@@ -58,7 +58,9 @@ class ReportController extends BaseApiController
         } catch (\RuntimeException $e) {
             return $this->serverError($e->getMessage());
         } catch (\Exception $e) {
-            return $this->serverError('Erreur interne du serveur');
+            // Log l'erreur réelle pour debug
+            log_message('error', '[ReportController][create] Exception: ' . $e->getMessage() . ' | ' . $e->getTraceAsString());
+            return $this->serverError('Erreur interne du serveur: ' . $e->getMessage());
         }
     }
 

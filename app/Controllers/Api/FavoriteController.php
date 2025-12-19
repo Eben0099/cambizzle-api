@@ -77,17 +77,27 @@ class FavoriteController extends BaseApiController
         $offset = max(0, ($page - 1) * $limit);
 
         try {
-            $items = $this->service->getFavorites(
+            $favorites = $this->service->getFavorites(
                 (int)$user['user_id'],
                 $limit,
                 $offset,
                 $sort,
                 $order
             );
+            
+            // Enrichir chaque favori avec les photos de l'annonce
+            $adPhotoModel = new \App\Models\AdPhotoModel();
+            foreach ($favorites as &$favorite) {
+                $favorite['photos'] = $adPhotoModel->where('ad_id', $favorite['ad_id'])
+                                                   ->where('display_order >=', 0)
+                                                   ->orderBy('display_order', 'ASC')
+                                                   ->findAll();
+            }
+            
             $total = $this->service->getCount((int)$user['user_id']);
 
             return $this->success([
-                'items' => $items,
+                'items' => $favorites,
                 'page' => $page,
                 'limit' => $limit,
                 'total' => $total
