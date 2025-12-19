@@ -62,6 +62,15 @@ class PaymentController extends BaseApiController
     {
         try {
             $payments = $this->paymentModel->orderBy('id', 'DESC')->findAll();
+            // Charger les titres d'annonces associés
+            $adModel = new \App\Models\AdModel();
+            foreach ($payments as &$payment) {
+                $ad = $adModel->find($payment['ad_id']);
+                $payment['ad_title'] = $ad ? $ad['title'] : null;
+                $payment['date'] = $payment['created_at'] ?? null;
+                $payment['payment_method'] = $payment['payment_method'] ?? null;
+            }
+            unset($payment);
             return $this->success($payments, 'Liste des paiements');
         } catch (\Exception $e) {
             return $this->serverError($e->getMessage());
