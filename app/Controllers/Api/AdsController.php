@@ -894,7 +894,7 @@ class AdsController extends BaseApiController
             $query = $adModel->select('ads.*, locations.city as location_name,
                                       subcategories.name as subcategory_name, categories.name as category_name,
                                       brands.name as brand_name, users.first_name as seller_username,
-                                      users.is_verified as userVerified')
+                                      users.is_identity_verified as userIdentityVerified')
                             ->join('locations', 'locations.id = ads.location_id', 'left')
                             ->join('subcategories', 'subcategories.id = ads.subcategory_id', 'left')
                             ->join('categories', 'categories.id = subcategories.category_id', 'left')
@@ -1025,7 +1025,7 @@ class AdsController extends BaseApiController
                 $ad['original_price'] = $ad['original_price'] ? (float) $ad['original_price'] : null;
                 
                 // Formatage de userVerified
-                $ad['userVerified'] = (int) ($ad['userVerified'] ?? 0);
+                $ad['userIdentityVerified'] = (int) ($ad['userIdentityVerified'] ?? 0);
             }
 
             // Métadonnées de pagination
@@ -1068,7 +1068,7 @@ class AdsController extends BaseApiController
                                   subcategories.name as subcategory_name, subcategories.slug as subcategory_slug,
                                   categories.name as category_name, categories.slug as category_slug,
                                   brands.name as brand_name, users.first_name as seller_username,
-                                  users.email as seller_email, users.is_verified as userVerified')
+                                  users.email as seller_email, users.is_identity_verified as userIdentityVerified')
                          ->join('locations', 'locations.id = ads.location_id', 'left')
                          ->join('subcategories', 'subcategories.id = ads.subcategory_id', 'left')
                          ->join('categories', 'categories.id = subcategories.category_id', 'left')
@@ -1116,7 +1116,7 @@ class AdsController extends BaseApiController
             $ad['original_price'] = $ad['original_price'] ? (float) $ad['original_price'] : null;
             
             // Formatage de userVerified
-            $ad['userVerified'] = (int) ($ad['userVerified'] ?? 0);
+            $ad['userIdentityVerified'] = (int) ($ad['userIdentityVerified'] ?? 0);
 
             // Incrémenter le compteur de vues
                 $adModel->where('id', $ad['id'])->increment('view_count', 1);
@@ -1625,7 +1625,7 @@ class AdsController extends BaseApiController
             $ad = $adModel->select('ads.*, locations.city as location_name, locations.region as location_type,
                                   subcategories.name as subcategory_name, categories.name as category_name,
                                   brands.name as brand_name, users.first_name as seller_username,
-                                  users.email as seller_email, users.is_verified as userVerified')
+                                  users.email as seller_email, users.is_identity_verified as userIdentityVerified')
                          ->join('locations', 'locations.id = ads.location_id', 'left')
                          ->join('subcategories', 'subcategories.id = ads.subcategory_id', 'left')
                          ->join('categories', 'categories.id = subcategories.category_id', 'left')
@@ -1660,7 +1660,7 @@ class AdsController extends BaseApiController
             $ad['original_price'] = $ad['original_price'] ? (float) $ad['original_price'] : null;
             
             // Formatage de userVerified
-            $ad['userVerified'] = (int) ($ad['userVerified'] ?? 0);
+            $ad['userIdentityVerified'] = (int) ($ad['userIdentityVerified'] ?? 0);
 
             return $this->respond($ad);
 
@@ -1744,7 +1744,7 @@ class AdsController extends BaseApiController
             // Construction de la requête pour l'utilisateur spécifique
             $query = $adModel->select('ads.*, locations.city as location_name, locations.region as location_type,
                                       subcategories.name as subcategory_name, categories.name as category_name,
-                                      brands.name as brand_name, users.is_verified as userVerified')
+                                      brands.name as brand_name, users.is_identity_verified as userIdentityVerified')
                             ->join('locations', 'locations.id = ads.location_id', 'left')
                             ->join('subcategories', 'subcategories.id = ads.subcategory_id', 'left')
                             ->join('categories', 'categories.id = subcategories.category_id', 'left')
@@ -1853,7 +1853,7 @@ class AdsController extends BaseApiController
                 $ad['original_price'] = $ad['original_price'] ? (float) $ad['original_price'] : null;
                 
                 // Formatage de userVerified
-                $ad['userVerified'] = (int) ($ad['userVerified'] ?? 0);
+                $ad['userIdentityVerified'] = (int) ($ad['userIdentityVerified'] ?? 0);
             }
 
             // Métadonnées de pagination
@@ -1967,7 +1967,7 @@ class AdsController extends BaseApiController
             $query = $adModel->select('ads.*, locations.city as location_name, locations.region as location_type,
                                       subcategories.name as subcategory_name, categories.name as category_name,
                                       brands.name as brand_name, users.first_name as seller_username,
-                                      users.is_verified as userVerified')
+                                      users.is_identity_verified as userIdentityVerified')
                             ->join('locations', 'locations.id = ads.location_id', 'left')
                             ->join('subcategories', 'subcategories.id = ads.subcategory_id', 'left')
                             ->join('categories', 'categories.id = subcategories.category_id', 'left')
@@ -2094,7 +2094,7 @@ class AdsController extends BaseApiController
                 $ad['original_price'] = $ad['original_price'] ? (float) $ad['original_price'] : null;
                 
                 // Formatage de userVerified
-                $ad['userVerified'] = (int) ($ad['userVerified'] ?? 0);
+                $ad['userIdentityVerified'] = (int) ($ad['userIdentityVerified'] ?? 0);
             }
 
             // Métadonnées de pagination
@@ -2496,7 +2496,7 @@ class AdsController extends BaseApiController
             $query = $adModel->select('ads.*, locations.city as location_name, locations.region as location_type,
                                       subcategories.name as subcategory_name, categories.name as category_name,
                                       brands.name as brand_name, users.first_name as seller_username,
-                                      users.is_verified as userVerified')
+                                      users.is_identity_verified as userIdentityVerified')
                             ->join('locations', 'locations.id = ads.location_id', 'left')
                             ->join('subcategories', 'subcategories.id = ads.subcategory_id', 'left')
                             ->join('categories', 'categories.id = subcategories.category_id', 'left')
@@ -2619,7 +2619,7 @@ class AdsController extends BaseApiController
                 $ad['original_price'] = $ad['original_price'] ? (float) $ad['original_price'] : null;
                 
                 // Formatage de userVerified
-                $ad['userVerified'] = (int) ($ad['userVerified'] ?? 0);
+                $ad['userIdentityVerified'] = (int) ($ad['userIdentityVerified'] ?? 0);
             }
 
             // Métadonnées de pagination
